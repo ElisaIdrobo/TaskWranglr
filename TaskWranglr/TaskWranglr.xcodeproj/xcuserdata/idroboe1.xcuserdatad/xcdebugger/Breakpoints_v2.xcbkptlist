@@ -35,5 +35,162 @@
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/TaskListViewController.swift"
+            timestampString = "501129212.796136"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "configureCell(_:indexPath:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/TaskListViewController.swift"
+            timestampString = "500950866.097222"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "16"
+            endingLineNumber = "16"
+            landmarkName = "fetchedResultsController"
+            landmarkType = "19">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TaskWranglr.TaskListViewController.fetchedResultsController.getter : Swift.ImplicitlyUnwrappedOptional&lt;__ObjC.NSFetchedResultsController&gt;"
+                  moduleName = "TaskWranglr"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
+                  timestampString = "500950177.726356"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "38">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TaskWranglr.TaskListViewController.fetchedResultsController.setter : Swift.ImplicitlyUnwrappedOptional&lt;__ObjC.NSFetchedResultsController&gt;"
+                  moduleName = "TaskWranglr"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
+                  timestampString = "500950177.726569"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "76">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TaskWranglr.TaskListViewController.init (style : __C.UITableViewStyle) -&gt; TaskWranglr.TaskListViewController"
+                  moduleName = "TaskWranglr"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
+                  timestampString = "500950177.726697"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TaskWranglr.TaskListViewController.init (nibName : Swift.Optional&lt;Swift.String&gt;, bundle : Swift.Optional&lt;__ObjC.NSBundle&gt;) -&gt; TaskWranglr.TaskListViewController"
+                  moduleName = "TaskWranglr"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
+                  timestampString = "500950177.726824"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "120">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "TaskWranglr.TaskListViewController.init (coder : __ObjC.NSCoder) -&gt; Swift.Optional&lt;TaskWranglr.TaskListViewController&gt;"
+                  moduleName = "TaskWranglr"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
+                  timestampString = "500950177.726949"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "14"
+                  endingLineNumber = "14"
+                  offsetFromSymbolStart = "74">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/CalendarViewController.swift"
+            timestampString = "500955224.833414"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "viewWillAppear(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/CalendarViewController.swift"
+            timestampString = "500954994.506247"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "66"
+            endingLineNumber = "66"
+            landmarkName = "requestAccessToCalendar()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/TaskListViewController.swift"
+            timestampString = "501129907.34211"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "131"
+            endingLineNumber = "131"
+            landmarkName = "prepareForSegue(_:sender:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

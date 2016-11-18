@@ -16,11 +16,8 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     var completionTimeFieldCell: TimeFieldCell!
     weak var deadlineFieldCell: DateFieldCell!
     
-    var add = false
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
     }
 
     override func didReceiveMemoryWarning() {
@@ -99,7 +96,6 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
             }
         }
     }
-    
     
 }
 
