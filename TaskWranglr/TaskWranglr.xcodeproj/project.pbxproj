@@ -10,6 +10,7 @@
 		FE3446551DD8F641004E0587 /* ScheduleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3446541DD8F641004E0587 /* ScheduleViewController.swift */; };
 		FE3446591DD8FA60004E0587 /* TaskListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3446581DD8FA60004E0587 /* TaskListViewController.swift */; };
 		FE34465B1DD90246004E0587 /* TaskFormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE34465A1DD90246004E0587 /* TaskFormViewController.swift */; };
+		FE4A80461DDFCDEE00A9C742 /* ShowTaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4A80451DDFCDEE00A9C742 /* ShowTaskViewController.swift */; };
 		FEF3EDFC1DC3DFDE00399F56 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF3EDFB1DC3DFDE00399F56 /* AppDelegate.swift */; };
 		FEF3EDFE1DC3DFDE00399F56 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF3EDFD1DC3DFDE00399F56 /* ViewController.swift */; };
 		FEF3EE011DC3DFDE00399F56 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FEF3EDFF1DC3DFDE00399F56 /* Main.storyboard */; };
@@ -41,6 +42,7 @@
 		FE3446541DD8F641004E0587 /* ScheduleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleViewController.swift; sourceTree = "<group>"; };
 		FE3446581DD8FA60004E0587 /* TaskListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskListViewController.swift; sourceTree = "<group>"; };
 		FE34465A1DD90246004E0587 /* TaskFormViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskFormViewController.swift; sourceTree = "<group>"; };
+		FE4A80451DDFCDEE00A9C742 /* ShowTaskViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowTaskViewController.swift; sourceTree = "<group>"; };
 		FEF3EDF81DC3DFDE00399F56 /* TaskWranglr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskWranglr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEF3EDFB1DC3DFDE00399F56 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FEF3EDFD1DC3DFDE00399F56 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				FE3446541DD8F641004E0587 /* ScheduleViewController.swift */,
 				FE3446581DD8FA60004E0587 /* TaskListViewController.swift */,
 				FE34465A1DD90246004E0587 /* TaskFormViewController.swift */,
+				FE4A80451DDFCDEE00A9C742 /* ShowTaskViewController.swift */,
 			);
 			path = TaskWranglr;
 			sourceTree = "<group>";
@@ -273,6 +276,7 @@
 				FEF3EDFE1DC3DFDE00399F56 /* ViewController.swift in Sources */,
 				FEF3EE041DC3DFDE00399F56 /* TaskWranglr.xcdatamodeld in Sources */,
 				FEF3EDFC1DC3DFDE00399F56 /* AppDelegate.swift in Sources */,
+				FE4A80461DDFCDEE00A9C742 /* ShowTaskViewController.swift in Sources */,
 				FE34465B1DD90246004E0587 /* TaskFormViewController.swift in Sources */,
 				FE3446551DD8F641004E0587 /* ScheduleViewController.swift in Sources */,
 				FE3446591DD8FA60004E0587 /* TaskListViewController.swift in Sources */,

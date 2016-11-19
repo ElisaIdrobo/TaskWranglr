@@ -123,7 +123,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3657" y="462"/>
+            <point key="canvasLocation" x="2421" y="478"/>
         </scene>
         <!--Tasks-->
         <scene sceneID="HWj-CX-YBj">
@@ -142,13 +142,16 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="Fs4-db-Lzm">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="Fs4-db-Lzm">
                                 <rect key="frame" x="0.0" y="136" width="600" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Fs4-db-Lzm" id="8Dd-8u-6QA">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <segue destination="yaC-WH-5L4" kind="show" identifier="showTask" id="i4W-Fx-uD8"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -159,7 +162,7 @@
                     <navigationItem key="navigationItem" title="Tasks" id="6xz-sa-4vN">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="rl4-et-mGm">
                             <connections>
-                                <segue destination="n51-mb-ZwB" kind="show" id="ea7-mO-Niy"/>
+                                <segue destination="n51-mb-ZwB" kind="show" identifier="addTask" id="ea7-mO-Niy"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -169,25 +172,25 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Du1-95-7Vc" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3657" y="1347"/>
+            <point key="canvasLocation" x="2321" y="1443"/>
         </scene>
         <!--Task Form View Controller-->
         <scene sceneID="eH7-oL-Mid">
             <objects>
-                <tableViewController id="n51-mb-ZwB" customClass="TaskFormViewController" customModule="TaskWranglr" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="px2-ph-AZU">
+                <tableViewController hidesBottomBarWhenPushed="YES" id="n51-mb-ZwB" customClass="TaskFormViewController" customModule="TaskWranglr" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="onDrag" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="px2-ph-AZU">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="textFieldCell" id="ySE-Ig-Iki" customClass="TextFieldCell" customModule="TaskWranglr" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textFieldCell" id="ySE-Ig-Iki" customClass="TextFieldCell" customModule="TaskWranglr" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="114" width="600" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="textFieldCell" tableViewCell="ySE-Ig-Iki" id="ws7-lO-iDN">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="nameField" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="lRJ-Fg-qrl">
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="nameField" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="lRJ-Fg-qrl">
                                             <rect key="frame" x="8" y="8" width="182" height="30"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="182" id="wR2-yd-mMC"/>
@@ -273,13 +276,63 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="cancelButton" destination="yZb-nV-4p1" id="XyD-4i-2Ma"/>
                         <outlet property="saveButton" destination="3GP-vN-Max" id="oHu-77-rlj"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="c94-H0-hmZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="SdJ-Vc-Ag6" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="5207" y="859"/>
+            <point key="canvasLocation" x="3663" y="883"/>
+        </scene>
+        <!--Show Task View Controller-->
+        <scene sceneID="KqR-sa-JJE">
+            <objects>
+                <tableViewController hidesBottomBarWhenPushed="YES" id="yaC-WH-5L4" customClass="ShowTaskViewController" customModule="TaskWranglr" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="eGa-0z-Tsz">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <button key="tableFooterView" opaque="NO" alpha="0.65000000000000002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="87e-qT-FLb">
+                            <rect key="frame" x="0.0" y="176" width="600" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="21"/>
+                            <state key="normal" title="Dismiss"/>
+                            <connections>
+                                <action selector="dismissTask:" destination="yaC-WH-5L4" eventType="touchDown" id="k3b-Oc-zEH"/>
+                            </connections>
+                        </button>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="VlT-yL-vdD">
+                                <rect key="frame" x="0.0" y="114" width="600" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="VlT-yL-vdD" id="KHV-Ik-A96">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="yaC-WH-5L4" id="bWs-V5-h13"/>
+                            <outlet property="delegate" destination="yaC-WH-5L4" id="4re-zz-oNg"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" id="y57-p4-Ool">
+                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="6nD-Kq-Cdw">
+                            <connections>
+                                <segue destination="n51-mb-ZwB" kind="show" identifier="editTask" id="dKN-E7-34m"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <segue destination="sdq-GO-j0G" kind="unwind" identifier="dismissTask" unwindAction="dismissTask:" id="6Eo-rp-RHT"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fIU-FM-1mS" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="sdq-GO-j0G" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="3543" y="1875"/>
         </scene>
         <!--TaskWranglr-->
         <scene sceneID="fpo-Nj-mRy">
@@ -301,7 +354,7 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HJV-HG-kL8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1637" y="910"/>
+            <point key="canvasLocation" x="317" y="966"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="b7f-Yx-JnS">
@@ -319,7 +372,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oZa-jo-GJg" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4367" y="871"/>
+            <point key="canvasLocation" x="3663" y="-34"/>
         </scene>
         <!--List-->
         <scene sceneID="Akb-Yj-5ag">
@@ -338,7 +391,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NPj-Xn-ABy" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2786" y="1347"/>
+            <point key="canvasLocation" x="1469" y="1443"/>
         </scene>
         <!--Schedule-->
         <scene sceneID="ubJ-bX-trR">
@@ -357,10 +410,29 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bWt-4s-hL4" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2705" y="462"/>
+            <point key="canvasLocation" x="1469" y="478"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="tSR-kT-g1H">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="zh2-Rb-5kF" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="hVo-Fs-0NQ">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="yaC-WH-5L4" kind="relationship" relationship="rootViewController" id="D8F-RO-dGb"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JH2-D2-Ims" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2327" y="2179"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="ea7-mO-Niy"/>
+        <segue reference="dKN-E7-34m"/>
+        <segue reference="D8F-RO-dGb"/>
     </inferredMetricsTieBreakers>
 </document>

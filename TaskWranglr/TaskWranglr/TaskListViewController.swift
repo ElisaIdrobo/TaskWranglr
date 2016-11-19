@@ -22,11 +22,10 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
         frc.delegate = self
         return frc
     }()
-    
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
     }
     
     override func didReceiveMemoryWarning() {
@@ -125,13 +124,39 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        if segue.identifier == "addTask" {
+            print("adding task")
+        }else if segue.identifier == "showTask" {
+            let taskVC = segue.destinationViewController as! ShowTaskViewController
+            if let selectedCell = sender as? UITableViewCell{
+                if let task = fetchedResultsController.objectAtIndexPath(tableView.indexPathForCell(selectedCell)!) as? NSManagedObject{
+                    taskVC.task = task
+                }
+            }
+        }
+        
     }
+    
+
  //placeholder for unwinding from the create task screen
     @IBAction func saveFromTask(unwindSegue: UIStoryboardSegue){
         
     }
     @IBAction func cancelFromTask(unwindSegue: UIStoryboardSegue){
         
+    }
+    //delete task if user dismisses
+    @IBAction func dismissTask(unwindSegue: UIStoryboardSegue){
+        let vc = unwindSegue.sourceViewController as? ShowTaskViewController
+        let taskToDismiss = vc!.task
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        let managedContext =  appDelegate.managedObjectContext
+        managedContext.deleteObject(taskToDismiss)
+        do{
+            try managedContext.save()
+        } catch let error as NSError{
+            print("could not delete \(error), \(error.userInfo)")
+        }
     }
 
 }
