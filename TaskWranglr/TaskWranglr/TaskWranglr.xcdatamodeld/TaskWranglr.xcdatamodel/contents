@@ -11,8 +11,13 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="subtask" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SubTask" inverseName="subTask" inverseEntity="SubTask" syncable="YES"/>
     </entity>
+    <entity name="TaskEvent" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Task" syncable="YES"/>
+    </entity>
     <elements>
-        <element name="Task" positionX="-63" positionY="-18" width="128" height="105"/>
-        <element name="SubTask" positionX="-54" positionY="18" width="128" height="90"/>
+        <element name="SubTask" positionX="-29" positionY="-279" width="128" height="90"/>
+        <element name="Task" positionX="-252" positionY="-294" width="128" height="105"/>
+        <element name="TaskEvent" positionX="-281" positionY="-39" width="128" height="75"/>
     </elements>
 </model>

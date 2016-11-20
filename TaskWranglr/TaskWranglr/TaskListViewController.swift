@@ -122,11 +122,10 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
         if segue.identifier == "addTask" {
             print("adding task")
         }else if segue.identifier == "showTask" {
+            //pass new showtaskviewcontroller the task the user selected
             let taskVC = segue.destinationViewController as! ShowTaskViewController
             if let selectedCell = sender as? UITableViewCell{
                 if let task = fetchedResultsController.objectAtIndexPath(tableView.indexPathForCell(selectedCell)!) as? NSManagedObject{

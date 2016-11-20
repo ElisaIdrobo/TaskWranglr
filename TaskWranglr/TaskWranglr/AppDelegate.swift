@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import EventKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,7 +20,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         return true
     }
-
+    func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+        calendarPermission()//ask for access user calendars if hasn't asked before
+        return true
+    }
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
@@ -43,6 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Saves changes in the application's managed object context before the application terminates.
         self.saveContext()
     }
+    
 
     // MARK: - Core Data stack
 
@@ -106,6 +111,61 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
+    //Mark: -EKEventStore
+    lazy var eventStore: EKEventStore = EKEventStore()
+    func calendarPermission(){
+
+        let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
+        if status == EKAuthorizationStatus.NotDetermined{
+            eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {
+                (accessGranted: Bool, error: NSError?) in
+                if accessGranted == true{
+                    print("calendar access granted")
+                    self.makeCalendar()
+                    print("app delegate created calendar")
+                }else{
+                    print("calendar access not granted")
+                }
+            })
+        }else if
+            status == EKAuthorizationStatus.Authorized{
+            if ((NSUserDefaults.standardUserDefaults().objectForKey("TaskWranglrCalendar")) == nil){
+                makeCalendar()
+            }
+        }
+    }
+    func makeCalendar(){
+        let calendar = EKCalendar(forEntityType: EKEntityType.Event, eventStore: eventStore)
+        calendar.title = "TaskWranglr Calendar"
+        let esSources = eventStore.sources
+        calendar.source = esSources.filter{
+            (source:EKSource)-> Bool in
+            source.sourceType.rawValue == EKSourceType.Local.rawValue
+        }.first!
+        do{
+            try eventStore.saveCalendar(calendar, commit: true)
+            NSUserDefaults.standardUserDefaults().setObject(calendar.calendarIdentifier, forKey: "TaskWranglrCalendar")
+            print(NSUserDefaults.standardUserDefaults().stringForKey("TaskWranglrCalendar"))
+        } catch{
+            print("new calendar would not save")
+        }
+    }
 
 }
-
+extension NSDate {
+    
+    func toLocalTime() -> NSDate {
+        
+        let timeZone = NSTimeZone.localTimeZone()
+        let seconds : NSTimeInterval = Double(timeZone.secondsFromGMTForDate(self))
+        
+        let localDate = NSDate(timeInterval: seconds, sinceDate: self)
+        return localDate
+    }
+    func addDays(numDays: Int) -> NSDate{
+        let seconds = 60 * 60 * 24 * numDays
+        let ti = NSTimeInterval(seconds)//seconds in num days = 60sec x 60min x24hours x numdays
+        let newDate = NSDate(timeInterval: ti, sinceDate: self)
+        return newDate
+    }
+}

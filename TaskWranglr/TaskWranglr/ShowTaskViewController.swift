@@ -20,8 +20,7 @@ class ShowTaskViewController: UITableViewController {
         tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
         if task == nil{
             fatalError("task was not passed to ShowTaskViewController")
-        }
-        
+        }  
     }
 
     override func didReceiveMemoryWarning() {
@@ -75,7 +74,7 @@ class ShowTaskViewController: UITableViewController {
         return cell
     }
     
-    //if dismiss button unwind and dismiss task
+    //if dismiss button unwind and dismiss task(segue currently goes to tasklistviewcontroller)
     @IBAction func dismissTask(sender: UIButton) {
         performSegueWithIdentifier("dismissTask", sender: self)
     }
