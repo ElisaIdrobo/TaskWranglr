@@ -13,6 +13,7 @@ class ShowTaskViewController: UITableViewController {
 
     //must be passed by previous view controller
     weak var task: NSManagedObject!
+    var subtasks: [NSManagedObject]! = [NSManagedObject]()//subtasks should be passed by previous vc
    
     
     override func viewDidLoad() {
@@ -20,7 +21,8 @@ class ShowTaskViewController: UITableViewController {
         tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
         if task == nil{
             fatalError("task was not passed to ShowTaskViewController")
-        }  
+        }
+        print(subtasks)
     }
 
     override func didReceiveMemoryWarning() {
@@ -31,12 +33,13 @@ class ShowTaskViewController: UITableViewController {
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 3
+        return 4
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
+        if section == 3{
+            return subtasks.count
+        }
         return 1
     }
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -46,6 +49,8 @@ class ShowTaskViewController: UITableViewController {
             return "Time to complete"
         }else if(section == 2){
             return "Deadline"
+        }else if(section == 3){
+                return "Subtasks"
         }else{
             return "default"
         }
@@ -67,6 +72,8 @@ class ShowTaskViewController: UITableViewController {
                 cell.textLabel?.text = "\(hours) Hours \(minutes) Minutes"
             case 2:
                 cell.textLabel?.text = deadline
+            case 3:
+                cell.textLabel?.text = subtasks[indexPath.row].valueForKey("name") as? String
             default:
                 cell.textLabel?.text = "oops"
         }
@@ -78,8 +85,6 @@ class ShowTaskViewController: UITableViewController {
     @IBAction func dismissTask(sender: UIButton) {
         performSegueWithIdentifier("dismissTask", sender: self)
     }
-
-
     
     // MARK: - Navigation
 
@@ -89,6 +94,10 @@ class ShowTaskViewController: UITableViewController {
             //pass the task the user selected to the new TaskFormViewController
             let taskVC = segue.destinationViewController as! TaskFormViewController
                     taskVC.task = task
+            //pass subtasks of task
+            let subtasksSet = task.mutableOrderedSetValueForKey("subtask")
+            let subtasks = subtasksSet.array
+            taskVC.subtasks = subtasks as? [NSManagedObject]
         }
     }
  

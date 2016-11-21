@@ -130,7 +130,14 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
             if let selectedCell = sender as? UITableViewCell{
                 if let task = fetchedResultsController.objectAtIndexPath(tableView.indexPathForCell(selectedCell)!) as? NSManagedObject{
                     taskVC.task = task
+                    //pass subtasks of task
+                    let subtasksSet = task.mutableOrderedSetValueForKey("subtask")
+                    let subtasks = subtasksSet.array
+                    taskVC.subtasks = subtasks as? [NSManagedObject]
+                    
+                    
                 }
+                
             }
         }
         

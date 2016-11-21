@@ -15,12 +15,16 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     weak var nameFieldCell: TextFieldCell!
     var completionTimeFieldCell: TimeFieldCell!
     weak var deadlineFieldCell: DateFieldCell!
+    weak var subtaskCell: SubtaskCell!
     
     
     //values in fields
     var nameField: String! = ""
     var completionTimeField: NSTimeInterval = NSTimeInterval()
     var deadlineField: NSDate! = NSDate()
+    
+    var subtasks: [NSManagedObject]! = [NSManagedObject]()
+    var newSubtasks = 0
     
     //variables needed to save a task
     weak var managedContext: NSManagedObjectContext!
@@ -33,9 +37,6 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         managedContext = appDelegate.managedObjectContext
         if task == nil {
-            //create task(NSManagedObject to be stored by coredata) if a task has not been passed as a segue(to update a task)
-            let entity = NSEntityDescription.entityForName("Task", inManagedObjectContext: managedContext)
-            task = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
             saveButton.enabled = false//not allow save until name entered
         }else{
             //set fields to task's values
@@ -43,7 +44,7 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
             completionTimeField = (task.valueForKey("completionTime") as? NSTimeInterval)!
             deadlineField = task.valueForKey("deadline") as? NSDate
         }
-        
+       
     }
 
     override func didReceiveMemoryWarning() {
@@ -52,7 +53,7 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 3 //3 fields need to be inputed
+        return 4 //4 fields need to be inputed
     }
     
     //link each cell to its cell type
@@ -74,6 +75,17 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
             cell.dateField.date = deadlineField
             deadlineFieldCell = cell
             return cell
+        }else if indexPath.section == 3{
+            
+            let cell = tableView.dequeueReusableCellWithIdentifier("subtaskCell") as! SubtaskCell
+            subtaskCell = cell
+            subtaskCell.nameField.delegate = self
+            if indexPath.row < subtasks.count{
+                subtaskCell.nameField.text = subtasks[indexPath.row].valueForKey("name") as? String
+                subtaskCell.timeField.countDownDuration = (subtasks[indexPath.row].valueForKey("completionTime") as? NSTimeInterval)!
+            }
+            return cell
+        
         }else{
             let cell = tableView.dequeueReusableCellWithIdentifier("textFieldCell") as UITableViewCell!
             return cell
@@ -82,7 +94,11 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1 //each input field needs 1 cell
+        if section == 3{
+            return subtasks.count + newSubtasks + 1
+        }else{
+            return 1 //each input field needs 1 cell
+        }
     }
     //define what input fields are
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -92,7 +108,10 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
             return "Time to complete"
         }else if(section == 2){
             return "Deadline"
-        }else{
+        }else if(section == 3){
+            return "Subtasks"
+        }
+        else{
             return "default"
         }
     }
@@ -104,26 +123,62 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
         if saveButton === sender{
           //save to core data
-            nameField = nameFieldCell.nameField.text
-            completionTimeField = completionTimeFieldCell.timeField.countDownDuration
-            deadlineField = deadlineFieldCell.dateField.date
-
-            task.setValue(nameField, forKey:"name")
-            task.setValue(completionTimeField, forKey: "completionTime")
-            task.setValue(deadlineField, forKey: "deadline")
-            do{
-                try managedContext.save()
-                print("Success \(nameField)")
-            }catch let error as NSError{
-                print("could not save \(error), \(error.userInfo)")
+            save()
+        }
+ 
+    }
+    /*
+     * create objects accociated with ManagedObjectContext. If updating, update the fields of the task. If creating a new task create the NSManagedObject. DOES NOT COMMIT
+     */
+    func saveTask(){
+        nameField = nameFieldCell.nameField.text
+        completionTimeField = completionTimeFieldCell.timeField.countDownDuration
+        deadlineField = deadlineFieldCell.dateField.date
+        if task == nil{
+            let entity = NSEntityDescription.entityForName("Task", inManagedObjectContext: managedContext)
+            task = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+        }
+        task.setValue(nameField, forKey:"name")
+        task.setValue(completionTimeField, forKey: "completionTime")
+        task.setValue(deadlineField, forKey: "deadline")
+    }
+    /*
+     * create objects accociated with ManagedObjectContext. If updating, update the fields of the subtask. If creating a new subtask create the NSManagedObject. DOES NOT COMMIT
+     */
+    func saveSubtasks(){
+        let entity = NSEntityDescription.entityForName("SubTask", inManagedObjectContext: managedContext)
+        
+        for row in 0..<tableView.numberOfRowsInSection(3){
+            let index = NSIndexPath(forItem: row, inSection: 3)
+            let cell=tableView.cellForRowAtIndexPath(index) as? SubtaskCell
+            let subtaskName = cell?.nameField.text
+            let subtaskTimeToComplete = cell?.timeField.countDownDuration
+            if subtaskName != ""{ //skip any empty cells
+                if index.row >= subtasks.count{
+                    //create what doesn't already exist
+                    let subtask = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+                    subtasks.insert(subtask, atIndex: index.row)
+                    subtask.setValue(task, forKey: "subtask")
+                }
+                let subtask = subtasks[index.row]
+                subtask.setValue(subtaskName, forKey: "name")
+                subtask.setValue(subtaskTimeToComplete, forKey: "completionTime")
+                task.setValue(NSOrderedSet(array: subtasks), forKey: "subtask")
             }
         }
-        if (sender === cancelButton && !(task.valueForKey("name") != nil)){//only delete if doesn't exist
-            managedContext.deleteObject(task)
+        
+    }
+    //saves everything to core data
+    func save(){
+        saveTask()
+        saveSubtasks()
+        do{
+            try managedContext.save()
+            print("Successful saving of task/subtasks")
+        }catch let error as NSError{
+            print("could not save \(error), \(error.userInfo)")
         }
     }
     //MARK: -UITextFieldDelegate
@@ -135,13 +190,23 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     }
     
     func checkValidNameEntered(){
-        let entered = nameFieldCell.nameField.text ?? ""
+        var entered = nameFieldCell.nameField.text ?? ""
         saveButton.enabled = !entered.isEmpty
+        entered = subtaskCell.nameField.text ?? ""
+        if !entered.isEmpty{
+            addSubtask()
+        }
+        
     }
     
+    func addSubtask() {
+        newSubtasks += 1
+        let index = NSIndexPath(forRow: tableView.numberOfRowsInSection(3), inSection: 3)
+        tableView.insertRowsAtIndexPaths([index], withRowAnimation: .Fade)
+        print("subtask added")
+    }
     
 }
-
 
 
 //cell type classes. linked to prototype cells in storyboard
@@ -155,6 +220,12 @@ class DateFieldCell: UITableViewCell {
     @IBOutlet weak var dateField: UIDatePicker!
 
 }
-
+class SubtaskCell: UITableViewCell {
+    @IBOutlet weak var timeField: UIDatePicker!
+    @IBOutlet weak var nameField: UITextField!
+}
+class SubtaskAdderCell: UITableViewCell{
+    @IBOutlet weak var addButton: UIButton!
+}
 
 

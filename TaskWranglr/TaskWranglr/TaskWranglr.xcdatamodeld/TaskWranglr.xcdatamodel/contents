@@ -3,21 +3,21 @@
     <entity name="SubTask" syncable="YES">
         <attribute name="completionTime" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="subTask" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="subtask" inverseEntity="Task" syncable="YES"/>
+        <relationship name="subtask" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="subtask" inverseEntity="Task" syncable="YES"/>
     </entity>
     <entity name="Task" syncable="YES">
         <attribute name="completionTime" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="deadline" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="subtask" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SubTask" inverseName="subTask" inverseEntity="SubTask" syncable="YES"/>
+        <relationship name="subtask" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="SubTask" inverseName="subtask" inverseEntity="SubTask" syncable="YES"/>
     </entity>
     <entity name="TaskEvent" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Task" syncable="YES"/>
     </entity>
     <elements>
-        <element name="SubTask" positionX="-29" positionY="-279" width="128" height="90"/>
-        <element name="Task" positionX="-252" positionY="-294" width="128" height="105"/>
-        <element name="TaskEvent" positionX="-281" positionY="-39" width="128" height="75"/>
+        <element name="SubTask" positionX="-29" positionY="-279" width="128" height="88"/>
+        <element name="Task" positionX="-252" positionY="-294" width="128" height="103"/>
+        <element name="TaskEvent" positionX="-299" positionY="-39" width="128" height="75"/>
     </elements>
 </model>

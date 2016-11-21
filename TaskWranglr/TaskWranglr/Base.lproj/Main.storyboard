@@ -38,7 +38,7 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="Ifi-qX-Lcu">
-                                        <rect key="frame" x="0.0" y="92" width="600" height="44"/>
+                                        <rect key="frame" x="0.0" y="28" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Ifi-qX-Lcu" id="pKU-Ki-uWN">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
@@ -204,6 +204,50 @@
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="dateField" destination="dEQ-Vb-zae" id="aRq-m7-Z8M"/>
+                                </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="subtaskAdderCell" id="aNV-7Z-fNV" customClass="SubtaskAdderCell" customModule="TaskWranglr" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="246" width="600" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="aNV-7Z-fNV" id="K59-je-u6c">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="subtaskCell" rowHeight="91" id="395-uK-wfT" customClass="SubtaskCell" customModule="TaskWranglr" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="290" width="600" height="91"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="395-uK-wfT" id="V55-Y3-SuB">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="90"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="countDownTimer" minuteInterval="15" translatesAutoresizingMaskIntoConstraints="NO" id="v2k-My-qOa">
+                                            <rect key="frame" x="132" y="0.0" width="468" height="90"/>
+                                            <date key="date" timeIntervalSinceReferenceDate="501369545.93962997">
+                                                <!--2016-11-20 21:19:05 +0000-->
+                                            </date>
+                                        </datePicker>
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="DR8-35-ve0">
+                                            <rect key="frame" x="8" y="7" width="116" height="30"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="116" id="jfN-Fh-275"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <textInputTraits key="textInputTraits"/>
+                                        </textField>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="DR8-35-ve0" firstAttribute="top" secondItem="V55-Y3-SuB" secondAttribute="topMargin" constant="-1" id="42A-rf-kWb"/>
+                                        <constraint firstItem="v2k-My-qOa" firstAttribute="top" secondItem="V55-Y3-SuB" secondAttribute="top" id="GT3-G4-OeT"/>
+                                        <constraint firstItem="v2k-My-qOa" firstAttribute="leading" secondItem="DR8-35-ve0" secondAttribute="trailing" constant="8" symbolic="YES" id="Nyu-Dq-drg"/>
+                                        <constraint firstAttribute="bottom" secondItem="v2k-My-qOa" secondAttribute="bottom" id="Wbb-t9-C6z"/>
+                                        <constraint firstItem="DR8-35-ve0" firstAttribute="leading" secondItem="V55-Y3-SuB" secondAttribute="leadingMargin" id="cRL-AE-cb1"/>
+                                        <constraint firstAttribute="trailing" secondItem="v2k-My-qOa" secondAttribute="trailing" id="wAW-3P-oOI"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="nameField" destination="DR8-35-ve0" id="j78-SZ-IZR"/>
+                                    <outlet property="timeField" destination="v2k-My-qOa" id="LfV-P7-FUM"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
