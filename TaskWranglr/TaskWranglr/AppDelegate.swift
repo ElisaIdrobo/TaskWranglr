@@ -155,7 +155,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension NSDate {
     
     func toLocalTime() -> NSDate {
-        
         let timeZone = NSTimeZone.localTimeZone()
         let seconds : NSTimeInterval = Double(timeZone.secondsFromGMTForDate(self))
         
@@ -168,4 +167,12 @@ extension NSDate {
         let newDate = NSDate(timeInterval: ti, sinceDate: self)
         return newDate
     }
+    func stripToDay()->NSDate{
+       let comp = NSCalendar.currentCalendar().components([.Day, .Month, .Year], fromDate: self)
+        comp.hour = 0
+        comp.minute = 0
+        return NSCalendar.currentCalendar().dateFromComponents(comp)!
+        
+    }
+    
 }

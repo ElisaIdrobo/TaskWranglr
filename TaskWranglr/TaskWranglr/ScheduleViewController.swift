@@ -34,12 +34,18 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
         frc.delegate = self
         return frc
     }()
+    lazy var formatter:NSDateFormatter = {
+        let f = NSDateFormatter()
+        f.dateFormat = "h:mma"
+        return f
+    }()
     var scheduleDict: [Day: [EKEvent]]!
     var scheduler:Scheduler!
     @IBOutlet weak var tableView: UITableView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("did stuff")
         //create button programmically so that the EKCalendarChooser can be used
         let leftButton =  UIBarButtonItem(title: "calendars", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(ScheduleViewController.chooseCalendar))
         navigationItem.leftBarButtonItem = leftButton
@@ -57,7 +63,9 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     }
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
-        cell.textLabel?.text = scheduleDict[day]![indexPath.row].title
+        let event = scheduleDict[day]![indexPath.row]
+        let time = "\(formatter.stringFromDate(event.startDate)) - \(formatter.stringFromDate(event.endDate))"
+        cell.textLabel?.text = "\(event.title): \(time)"
         return cell
     }
     override func didReceiveMemoryWarning() {

@@ -9,13 +9,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TaskWrangler/TaskFormViewController.swift"
-            timestampString = "500776892.323586"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "40"
-            endingLineNumber = "40"
-            landmarkName = "tableView(_:cellForRowAtIndexPath:)"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
+            landmarkName = "schedule()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +25,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TaskWrangler/TaskFormViewController.swift"
-            timestampString = "500777762.094257"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "85"
-            endingLineNumber = "85"
-            landmarkName = "prepareForSegue(_:sender:)"
+            startingLineNumber = "130"
+            endingLineNumber = "130"
+            landmarkName = "schedule()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -41,13 +41,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TaskWranglr/TaskListViewController.swift"
-            timestampString = "501212339.212505"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "54"
-            endingLineNumber = "54"
-            landmarkName = "configureCell(_:indexPath:)"
+            startingLineNumber = "134"
+            endingLineNumber = "134"
+            landmarkName = "schedule()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -57,106 +57,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TaskWranglr/TaskListViewController.swift"
-            timestampString = "500950866.097222"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "16"
-            endingLineNumber = "16"
-            landmarkName = "fetchedResultsController"
-            landmarkType = "19">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TaskWranglr.TaskListViewController.fetchedResultsController.getter : Swift.ImplicitlyUnwrappedOptional&lt;__ObjC.NSFetchedResultsController&gt;"
-                  moduleName = "TaskWranglr"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
-                  timestampString = "500950177.726356"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "14"
-                  endingLineNumber = "14"
-                  offsetFromSymbolStart = "38">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TaskWranglr.TaskListViewController.fetchedResultsController.setter : Swift.ImplicitlyUnwrappedOptional&lt;__ObjC.NSFetchedResultsController&gt;"
-                  moduleName = "TaskWranglr"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
-                  timestampString = "500950177.726569"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "14"
-                  endingLineNumber = "14"
-                  offsetFromSymbolStart = "76">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TaskWranglr.TaskListViewController.init (style : __C.UITableViewStyle) -&gt; TaskWranglr.TaskListViewController"
-                  moduleName = "TaskWranglr"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
-                  timestampString = "500950177.726697"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "14"
-                  endingLineNumber = "14"
-                  offsetFromSymbolStart = "72">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TaskWranglr.TaskListViewController.init (nibName : Swift.Optional&lt;Swift.String&gt;, bundle : Swift.Optional&lt;__ObjC.NSBundle&gt;) -&gt; TaskWranglr.TaskListViewController"
-                  moduleName = "TaskWranglr"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
-                  timestampString = "500950177.726824"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "14"
-                  endingLineNumber = "14"
-                  offsetFromSymbolStart = "120">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "TaskWranglr.TaskListViewController.init (coder : __ObjC.NSCoder) -&gt; Swift.Optional&lt;TaskWranglr.TaskListViewController&gt;"
-                  moduleName = "TaskWranglr"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/idroboe1/TaskWranglr/TaskWranglr/TaskWranglr/TaskListViewController.swift"
-                  timestampString = "500950177.726949"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "14"
-                  endingLineNumber = "14"
-                  offsetFromSymbolStart = "74">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TaskWranglr/CalendarViewController.swift"
-            timestampString = "500955224.833414"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "50"
-            endingLineNumber = "50"
-            landmarkName = "viewWillAppear(_:)"
+            startingLineNumber = "328"
+            endingLineNumber = "328"
+            landmarkName = "timeSegsToAssignTo(_:durations:task:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -166,13 +73,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TaskWranglr/CalendarViewController.swift"
-            timestampString = "500954994.506247"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "66"
-            endingLineNumber = "66"
-            landmarkName = "requestAccessToCalendar()"
+            startingLineNumber = "335"
+            endingLineNumber = "335"
+            landmarkName = "timeSegsToAssignTo(_:durations:task:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -182,13 +89,109 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TaskWranglr/TaskListViewController.swift"
-            timestampString = "501212339.212505"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "124"
-            endingLineNumber = "124"
-            landmarkName = "prepareForSegue(_:sender:)"
+            startingLineNumber = "367"
+            endingLineNumber = "367"
+            landmarkName = "timeSegsToAssignTo(_:durations:task:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "214"
+            endingLineNumber = "214"
+            landmarkName = "initTempDay(_:dayOfWeek:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "206"
+            endingLineNumber = "206"
+            landmarkName = "initTempDay(_:dayOfWeek:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
+            landmarkName = "initTempDay(_:dayOfWeek:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "99"
+            endingLineNumber = "99"
+            landmarkName = "schedule()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "374"
+            endingLineNumber = "374"
+            landmarkName = "findSegInDay(_:duration:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TaskWranglr/Scheduler.swift"
+            timestampString = "501493180.044671"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "348"
+            endingLineNumber = "348"
+            landmarkName = "timeSegsToAssignTo(_:durations:task:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

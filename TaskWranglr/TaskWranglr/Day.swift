@@ -7,8 +7,8 @@
 //
 
 import Foundation
-enum Day{
-    case Monday
+enum Day: String{
+    case Monday 
     case Tuesday
     case Wednesday
     case Thuresday

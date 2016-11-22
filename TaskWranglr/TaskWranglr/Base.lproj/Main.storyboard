@@ -165,7 +165,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="countDownTimer" minuteInterval="15" translatesAutoresizingMaskIntoConstraints="NO" id="2iJ-tE-SZ2">
+                                        <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="countDownTimer" minuteInterval="30" translatesAutoresizingMaskIntoConstraints="NO" id="2iJ-tE-SZ2">
                                             <rect key="frame" x="0.0" y="-86" width="600" height="216"/>
                                             <date key="date" timeIntervalSinceReferenceDate="500767516.25445199">
                                                 <!--2016-11-13 22:05:16 +0000-->
@@ -221,7 +221,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="90"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="countDownTimer" minuteInterval="15" translatesAutoresizingMaskIntoConstraints="NO" id="v2k-My-qOa">
+                                        <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="countDownTimer" minuteInterval="30" translatesAutoresizingMaskIntoConstraints="NO" id="v2k-My-qOa">
                                             <rect key="frame" x="132" y="0.0" width="468" height="90"/>
                                             <date key="date" timeIntervalSinceReferenceDate="501369545.93962997">
                                                 <!--2016-11-20 21:19:05 +0000-->
