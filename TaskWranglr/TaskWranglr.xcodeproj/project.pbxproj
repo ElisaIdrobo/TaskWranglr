@@ -14,7 +14,6 @@
 		FE55E3EE1DE1180A00BCDA24 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE55E3ED1DE1180A00BCDA24 /* Scheduler.swift */; };
 		FE55E3F01DE1281B00BCDA24 /* Day.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE55E3EF1DE1281B00BCDA24 /* Day.swift */; };
 		FEF3EDFC1DC3DFDE00399F56 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF3EDFB1DC3DFDE00399F56 /* AppDelegate.swift */; };
-		FEF3EDFE1DC3DFDE00399F56 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF3EDFD1DC3DFDE00399F56 /* ViewController.swift */; };
 		FEF3EE011DC3DFDE00399F56 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FEF3EDFF1DC3DFDE00399F56 /* Main.storyboard */; };
 		FEF3EE041DC3DFDE00399F56 /* TaskWranglr.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FEF3EE021DC3DFDE00399F56 /* TaskWranglr.xcdatamodeld */; };
 		FEF3EE061DC3DFDE00399F56 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FEF3EE051DC3DFDE00399F56 /* Assets.xcassets */; };
@@ -49,7 +48,6 @@
 		FE55E3EF1DE1281B00BCDA24 /* Day.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Day.swift; sourceTree = "<group>"; };
 		FEF3EDF81DC3DFDE00399F56 /* TaskWranglr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskWranglr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEF3EDFB1DC3DFDE00399F56 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		FEF3EDFD1DC3DFDE00399F56 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		FEF3EE001DC3DFDE00399F56 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		FEF3EE031DC3DFDE00399F56 /* TaskWranglr.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TaskWranglr.xcdatamodel; sourceTree = "<group>"; };
 		FEF3EE051DC3DFDE00399F56 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -112,7 +110,6 @@
 			isa = PBXGroup;
 			children = (
 				FEF3EDFB1DC3DFDE00399F56 /* AppDelegate.swift */,
-				FEF3EDFD1DC3DFDE00399F56 /* ViewController.swift */,
 				FEF3EDFF1DC3DFDE00399F56 /* Main.storyboard */,
 				FEF3EE051DC3DFDE00399F56 /* Assets.xcassets */,
 				FEF3EE071DC3DFDE00399F56 /* LaunchScreen.storyboard */,
@@ -278,7 +275,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FEF3EDFE1DC3DFDE00399F56 /* ViewController.swift in Sources */,
 				FE55E3EE1DE1180A00BCDA24 /* Scheduler.swift in Sources */,
 				FEF3EE041DC3DFDE00399F56 /* TaskWranglr.xcdatamodeld in Sources */,
 				FEF3EDFC1DC3DFDE00399F56 /* AppDelegate.swift in Sources */,

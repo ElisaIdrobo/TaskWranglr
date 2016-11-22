@@ -1,9 +1,14 @@
 //
-//  TaskFormViewController.swift
-//  TaskWranglr
-//
+// Name: Elisa Idrobo
+// Course: CSC 415
+// Semester: Fall 2016
+// Instructor: Dr. Pulimood
+// Project name: TaskWranglr
+// Description: An app to plan when to work on various homework assignments based on the user's schedule.
+// Filename: TaskFormViewController.swift
+// Description: view controller for the new task and update task screens. Allows the user to input data about a task
+// Last modified on: 11/20/16
 //  Created by Elisa Idrobo on 11/13/16.
-//  Copyright © 2016 Elisa Idrobo. All rights reserved.
 //
 
 import UIKit
@@ -31,7 +36,9 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     weak var task: NSManagedObject!
     @IBOutlet weak var cancelButton: UIBarButtonItem!
     
-    
+    /*
+     * sets up view. if the user is updating, populates the input fields with the saved task data
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -51,12 +58,15 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+    /*
+     * 4 sections: name, time needed to complete, deadline, subtasks
+     */
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 4 //4 fields need to be inputed
     }
-    
-    //link each cell to its cell type
+    /*
+     * link each cell to its cell type
+     */
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         if(indexPath.section == 0){
@@ -92,7 +102,9 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         }
         
     }
-    
+    /*
+     * sets number of rows to one on all input fields unless it is the subtasks section. Int that case number of rows is equal to the number of subtasks +1
+     */
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 3{
             return subtasks.count + newSubtasks + 1
@@ -100,7 +112,9 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
             return 1 //each input field needs 1 cell
         }
     }
-    //define what input fields are
+    /*
+     * define what input fields are
+     */
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if(section == 0){
             return "Name"
@@ -170,7 +184,9 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         }
         
     }
-    //saves everything to core data
+    /*
+     * saves everything to core data
+     */
     func save(){
         saveTask()
         saveSubtasks()
@@ -183,12 +199,18 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     }
     //MARK: -UITextFieldDelegate
     
+    /*
+     * deselects textfields if user presses enter
+     */
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         checkValidNameEntered()
         textField.resignFirstResponder()
         return true
     }
     
+    /*
+     * If the name field is non-empty allows the user to save, adds new subtask row if subtask name is non-empty
+     */
     func checkValidNameEntered(){
         var entered = nameFieldCell.nameField.text ?? ""
         saveButton.enabled = !entered.isEmpty
@@ -198,7 +220,9 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         }
         
     }
-    
+    /*
+     * creates a new subtask row
+     */
     func addSubtask() {
         newSubtasks += 1
         let index = NSIndexPath(forRow: tableView.numberOfRowsInSection(3), inSection: 3)
@@ -208,8 +232,9 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     
 }
 
-
-//cell type classes. linked to prototype cells in storyboard
+/*
+ *cell type classes. linked to prototype cells in storyboard
+ */
 class TextFieldCell: UITableViewCell {
     @IBOutlet weak var nameField: UITextField!
 }
@@ -223,9 +248,6 @@ class DateFieldCell: UITableViewCell {
 class SubtaskCell: UITableViewCell {
     @IBOutlet weak var timeField: UIDatePicker!
     @IBOutlet weak var nameField: UITextField!
-}
-class SubtaskAdderCell: UITableViewCell{
-    @IBOutlet weak var addButton: UIButton!
 }
 
 

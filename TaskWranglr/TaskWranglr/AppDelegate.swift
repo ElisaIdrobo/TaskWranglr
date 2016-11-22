@@ -1,9 +1,14 @@
 //
-//  AppDelegate.swift
-//  TaskWranglr
-//
-//  Created by Elisa Idrobo on 10/28/16.
-//  Copyright © 2016 Elisa Idrobo. All rights reserved.
+// Name: Elisa Idrobo
+// Course: CSC 415
+// Semester: Fall 2016
+// Instructor: Dr. Pulimood
+// Project name: TaskWranglr
+// Description: An app to plan when to work on various homework assignments based on the user's schedule.
+// Filename: AppDelegate.swift
+// Description: handles states of UIApplication object
+// Last modified on: 11/21/16
+// Created by Elisa Idrobo on 10/28/16
 //
 
 import UIKit
@@ -113,6 +118,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     //Mark: -EKEventStore
     lazy var eventStore: EKEventStore = EKEventStore()
+    /*
+     * Asks user for permission to access calendars if authorization status is unknown. If a calendar has not been created one is made.
+     */
     func calendarPermission(){
 
         let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
@@ -134,6 +142,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
+    /*
+     * creates a calendar for the app. This should not be called if there already exists a calendar
+     */
     func makeCalendar(){
         let calendar = EKCalendar(forEntityType: EKEntityType.Event, eventStore: eventStore)
         calendar.title = "TaskWranglr Calendar"
@@ -145,15 +156,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         do{
             try eventStore.saveCalendar(calendar, commit: true)
             NSUserDefaults.standardUserDefaults().setObject(calendar.calendarIdentifier, forKey: "TaskWranglrCalendar")
-            print(NSUserDefaults.standardUserDefaults().stringForKey("TaskWranglrCalendar"))
+            //print(NSUserDefaults.standardUserDefaults().stringForKey("TaskWranglrCalendar"))
         } catch{
             print("new calendar would not save")
         }
     }
 
 }
+/*
+ *adds extensions to NSDate to make it easier to work with
+ */
 extension NSDate {
-    
+    /*
+     * returns a NSDate object at the current time zone
+     */
     func toLocalTime() -> NSDate {
         let timeZone = NSTimeZone.localTimeZone()
         let seconds : NSTimeInterval = Double(timeZone.secondsFromGMTForDate(self))
@@ -161,18 +177,24 @@ extension NSDate {
         let localDate = NSDate(timeInterval: seconds, sinceDate: self)
         return localDate
     }
+    /*
+     * returns a NSDate object that is numDays after the this date
+     */
     func addDays(numDays: Int) -> NSDate{
         let seconds = 60 * 60 * 24 * numDays
         let ti = NSTimeInterval(seconds)//seconds in num days = 60sec x 60min x24hours x numdays
         let newDate = NSDate(timeInterval: ti, sinceDate: self)
         return newDate
     }
+    /*
+     * returns a NSDate object with its hours, minutes and seconds set to zero
+     */
     func stripToDay()->NSDate{
        let comp = NSCalendar.currentCalendar().components([.Day, .Month, .Year], fromDate: self)
         comp.hour = 0
         comp.minute = 0
+        comp.second = 0
         return NSCalendar.currentCalendar().dateFromComponents(comp)!
-        
     }
     
 }

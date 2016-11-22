@@ -1,11 +1,13 @@
-//
-//  Scheduler.swift
-//  TaskWranglr
-//
+// Name: Elisa Idrobo
+// Course: CSC 415
+// Semester: Fall 2016
+// Instructor: Dr. Pulimood
+// Project name: TaskWranglr
+// Description: An app to plan when to work on various homework assignments based on the user's schedule.
+// Filename: Scheduler.swift
+// Description: Runs the scheduling algorithm. Scheduler should never be instantiated if calendar access is not authorized
+// Last modified on: 11/22/16
 //  Created by Elisa Idrobo on 11/19/16.
-//  Copyright © 2016 Elisa Idrobo. All rights reserved.
-//
-//Scheduler should never be instantiated if calendar access is not authorized
 
 import Foundation
 import EventKit
@@ -27,9 +29,10 @@ class Scheduler{
         
     }
     
-        
-    //get events from the user's calendars
-    func fetchCalendarEvents(calendars: [EKCalendar]) -> [EKEvent] {
+    /*
+     * get events from the user's calendars
+     */
+    private func fetchCalendarEvents(calendars: [EKCalendar]) -> [EKEvent] {
         let currentDate = NSDate().toLocalTime()
         //let dateFormatter = NSDateFormatter()
         //dateFormatter.dateFormat = "EEEE, MMM dd, yyyy GGG"
@@ -38,15 +41,17 @@ class Scheduler{
         let calEvents: [EKEvent] = eventStore.eventsMatchingPredicate(eventsPredicate)
         return calEvents
     }
-    //make a EKEvent for a task event and link it to its corresponding task in the core data model, does not change the tempSchedule
-    func createTaskEvent(name:String, timeSeg:TimeSeg, task:NSManagedObject){
+    /*
+     * make a EKEvent for a task event and link it to its corresponding task in the core data model, does not change the tempSchedule
+     */
+    private func createTaskEvent(name:String, timeSeg:TimeSeg, task:NSManagedObject){
         if(timeSeg.startTime == timeSeg.endTime){return}//ToDo: find actual problem causing this
         let taskEvent = EKEvent(eventStore: eventStore)
         taskEvent.calendar = taskCalendar
         taskEvent.title = name
         taskEvent.startDate = timeSeg.startTime
         taskEvent.endDate = timeSeg.endTime
-        /*
+        /* no efficient way to delete all events from a calendar so this is currently not saving to calendar
         do{
             try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: false)
                     }catch {
@@ -72,7 +77,7 @@ class Scheduler{
      * makes events for each task so that they will be completed by their due date and have no overlap with other events. Each task cannot be broken up into segments smaller than 30 minutes
      *returns: an array of task events([EKEvent])
      */
-    func schedule()->[EKEvent]{
+    private func schedule()->[EKEvent]{
         //TO-DO: implement scheduling algorithm
         //get calendar events ordered by what comes first
         let cEvents = fetchCalendarEvents(eventStore.calendarsForEntityType(EKEntityType.Event)).sort(){
@@ -143,6 +148,9 @@ class Scheduler{
         }
         return events
     }
+    /*
+     * Top-level scheduling algorith that is what other classes should call to get the schedule. returns  a dictionary of events for each day of the week
+     */
     func getScheduleAsDictionary()->[Day:[EKEvent]]{
         var scheduleDict:[Day:[EKEvent]] = [:]
         
@@ -156,7 +164,10 @@ class Scheduler{
         scheduleDict[.Sunday] = filterByDay(events, day: "Sunday")
         return scheduleDict
     }
-    func filterByDay(arr:[EKEvent], day:String)->[EKEvent]{
+    /*
+     * returns the events happening on the specified day from a list of EKEvents
+     */
+    private func filterByDay(arr:[EKEvent], day:String)->[EKEvent]{
         return arr.filter({
             (e1: EKEvent) -> Bool in
             let dateFormatter = NSDateFormatter()
@@ -165,10 +176,14 @@ class Scheduler{
             return dayString == day
         })
     }
-    func daysUntil(day:Day, currentDay: Day)->Int{
+    /*
+     * returns number of days from the given current day till the next given day
+     */
+    private func daysUntil(day:Day, currentDay: Day)->Int{
         let order = dayOrderSubarray(7, today: currentDay)
         return order.indexOf(day)!
     }
+    
     //parameter: eventsOnDay are events from the same day sorted by what comes earlier
     //returns an an instance of CalendarDay for that day assuming no more than 12 hours a day of time that can be scheduled
     private func initTempDay(eventsOnDay: [EKEvent], dayOfWeek: NSDate) -> CalendarDay {
@@ -240,16 +255,17 @@ class Scheduler{
         return calendarDay
     }
     
-    func daysTillDeadline(deadline: NSDate)->Int{
+    private func daysTillDeadline(deadline: NSDate)->Int{
         let currentDate = NSDate().stripToDay()
         let deadlineDay = deadline.stripToDay()
         let timeTill = deadlineDay.timeIntervalSinceDate(currentDate) + (3600*24) //add one day so it includes the current day
         let daysToWorkOn = (timeTill / (3600.0*24.0))
         return Int(daysToWorkOn)
     }
+    
     //returns an array of time per day to work on assignment corresponding to the array generated by the dayOrderSubarray method
     //returns an empty array if not enough available hours
-    func daysToAssignTo(numDaysToWorkOn: Int,today: Day, days: [Day], duration: NSTimeInterval)->[NSTimeInterval]{
+    private func daysToAssignTo(numDaysToWorkOn: Int,today: Day, days: [Day], duration: NSTimeInterval)->[NSTimeInterval]{
         var segDuration = segmentTask(numDaysToWorkOn, duration: duration)
         var segByDay = [NSTimeInterval](count: numDaysToWorkOn, repeatedValue: NSTimeInterval(-1))
         var numDays = numDaysToWorkOn
@@ -290,8 +306,9 @@ class Scheduler{
     }
 
 
-//precondition: num is <= 7
-    func dayOrderSubarray(numDaysToWorkOn: Int,today: Day)->[Day]{
+    //precondition: num is <= 7
+    // returns an array of days ordered with the given day(today) first
+    private func dayOrderSubarray(numDaysToWorkOn: Int,today: Day)->[Day]{
         let dayOrder: [Day] = [.Monday, .Tuesday, .Wednesday, .Thuresday, .Friday, .Saturday, .Sunday]
         var subarray: [Day]
         //expected case
@@ -311,8 +328,9 @@ class Scheduler{
         }
         return subarray
     }
-    //segment a task rounding to nearest halfhour
-    func segmentTask(num: Int, duration: NSTimeInterval)->[NSTimeInterval]{
+    
+    //segment a task into num pieces, rounding to nearest halfhour
+    private func segmentTask(num: Int, duration: NSTimeInterval)->[NSTimeInterval]{
         //need to do calculations as minutes to round days to nearest half hour
         let halfHour = 30
         let durMin:Int = Int(duration)/60//temp make minutes
@@ -325,7 +343,7 @@ class Scheduler{
     //parameters: arrays of how long to work on task and array for mapping to day of the week
     //precondition assumes that durations are correct and the availableTime[] in tempschedule are sorted by duration of each available TimeSeg
     //postconditions: all events for tasks have been made and the available time each day has been updated
-    func timeSegsToAssignTo(days: [Day], durations: [NSTimeInterval], task: NSManagedObject){
+    private func timeSegsToAssignTo(days: [Day], durations: [NSTimeInterval], task: NSManagedObject){
         let name = task.valueForKey("name") as? String
         for i in 0..<days.count{
             var day: CalendarDay = tempSchedule[days[i]]!
@@ -371,7 +389,7 @@ class Scheduler{
     }
     //given a calendar day return a segment of available time that is >= duration(but the shortest possible)
     //if none are long enough returns the longest
-    func findSegInDay(day: CalendarDay, duration: NSTimeInterval)->TimeSeg{
+    private func findSegInDay(day: CalendarDay, duration: NSTimeInterval)->TimeSeg{
         let timeSegs = day.availableTime
         var j = 0
         while j < timeSegs.count{
@@ -384,17 +402,12 @@ class Scheduler{
         j = j - 1//undo increment
         return timeSegs[j]
     }
-    /*
-    func getCalendarEvents(){
-        let cEvents = fetchCalendarEvents(eventStore.calendarsForEntityType(EKEntityType.Event)).sort(){
-            (e1: EKEvent, e2: EKEvent) -> Bool in
-            return e1.startDate.compare(e2.startDate) == NSComparisonResult.OrderedAscending
-        }
-        
-
-    }*/
     
 }
+
+/*
+ * data structures used by the scheduling algorithm to store segments of time and represent a day- storing segments of available time
+ */
 struct TimeSeg{
     var startTime: NSDate
     var endTime: NSDate

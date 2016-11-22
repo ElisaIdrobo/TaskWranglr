@@ -1,9 +1,14 @@
 //
-//  TaskListViewController.swift
-//  TaskWranglr
-//
+// Name: Elisa Idrobo
+// Course: CSC 415
+// Semester: Fall 2016
+// Instructor: Dr. Pulimood
+// Project name: TaskWranglr
+// Description: An app to plan when to work on various homework assignments based on the user's schedule.
+// Filename: TaskListViewController.swift
+// Description: view controller for the task list view. lists all tasks the user has created and allows the user to view task details of a selected task.
+// Last modified on: 11/20/16
 //  Created by Elisa Idrobo on 11/13/16.
-//  Copyright © 2016 Elisa Idrobo. All rights reserved.
 //
 import CoreData
 import UIKit
@@ -34,13 +39,19 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
     }
     
     //MARK: -TableView methods
+    
+    /*
+     * sets number of sections to the number of sections returned by the fetchedResultsController(aka 1)
+     */
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         if let count = fetchedResultsController.sections{
             return count.count
         }
-        
         return 0
     }
+    /*
+     * set the number of rows to the number of saved tasks
+     */
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         if let sections = fetchedResultsController.sections{
             let sectionInfo = sections[section]
@@ -48,7 +59,9 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
         }
         return 0
     }
-    //set the text in a cell to the name of the task
+    /*
+     *set the text in a cell to the name of the task
+     */
     func configureCell(cell: UITableViewCell, indexPath: NSIndexPath){
         let task = fetchedResultsController.objectAtIndexPath(indexPath)
         if let name = task.valueForKey("name") as? String{
@@ -60,10 +73,11 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
         configureCell(cell, indexPath: indexPath)
         return cell
     }
-    
+    /*
+     *do initial fetching of task data
+     */
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        //do initial fetching of task data
         do{
             try fetchedResultsController.performFetch()
         } catch{
@@ -120,7 +134,10 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
 
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+
+    /*
+     * if the user has selected a task, the appropriate task/subsets are passed to the new ShowTaskViewController
+     */
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "addTask" {
             print("adding task")
@@ -143,15 +160,18 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
         
     }
     
-
- //placeholder for unwinding from the create task screen
+    /*
+     *placeholders for unwinding from the create task screen
+     */
     @IBAction func saveFromTask(unwindSegue: UIStoryboardSegue){
         
     }
     @IBAction func cancelFromTask(unwindSegue: UIStoryboardSegue){
         
     }
-    //delete task if user dismisses
+    /*
+     *delete task from persistant store if user dismisses it
+     */
     @IBAction func dismissTask(unwindSegue: UIStoryboardSegue){
         let vc = unwindSegue.sourceViewController as? ShowTaskViewController
         let taskToDismiss = vc!.task

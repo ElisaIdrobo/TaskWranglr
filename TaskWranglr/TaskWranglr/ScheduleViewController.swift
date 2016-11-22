@@ -1,9 +1,14 @@
 //
-//  ScheduleViewController.swift
-//  TaskWranglr
-//
-//  Created by Elisa Idrobo on 11/13/16.
-//  Copyright © 2016 Elisa Idrobo. All rights reserved.
+// Name: Elisa Idrobo
+// Course: CSC 415
+// Semester: Fall 2016
+// Instructor: Dr. Pulimood
+// Project name: TaskWranglr
+// Description: An app to plan when to work on various homework assignments based on the user's schedule.
+// Filename:  ScheduleViewController.swift
+// Description: View controller for the schedule view. Displays any task or calendar events on the user's schedule. It is in charge of running the scheduling algorithm.
+// Last modified on: 11/21/16
+// Created by Elisa Idrobo on 11/13/16.
 //
 
 import UIKit
@@ -42,7 +47,10 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     var scheduleDict: [Day: [EKEvent]]!
     var scheduler:Scheduler!
     @IBOutlet weak var tableView: UITableView!
-
+    
+    /*
+     * initializes the view controller. if the user has not given access to their calendar the Schedule View and its accociated functionality(a schedule) is disabled.
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
         print("did stuff")
@@ -61,6 +69,9 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
             calendarDeniedMessage()//disable the schedule component of the app if no calendar access
         }
     }
+    /*
+     * sets the labels of the table cells to the name and times of each task or calendar event
+     */
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
         let event = scheduleDict[day]![indexPath.row]
@@ -81,18 +92,34 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
         // Pass the selected object to the new view controller.
     }
     
+    /*
+     * unwind segue after a task is saved(new or updated). Reruns scheduling algorithm.
+     */
     @IBAction func saveFromTask(unwindSegue: UIStoryboardSegue){
         scheduleDict = scheduler.getScheduleAsDictionary()
     }
+    
+    /*
+     * unwind segue after updating/creating a task is cancelled.
+     */
     @IBAction func cancelFromTask(unwindSegue: UIStoryboardSegue){
     }
     // MARK: - UITableViewDataSource
+    /*
+     * one section in the view's table
+     */
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
     }
+    /*
+     *set the number of rows to the number of events for the currently selected day
+     */
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return scheduleDict[day]!.count
     }
+    /*
+     * responds to user selection of what day's schedule they want to view. Updates the current day displayed
+     */
     @IBAction func dayChange(sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
@@ -116,6 +143,9 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     }
     
     // MARK: -Calendar Events
+    /*
+     * creates calendar chooser UI
+     */
     func chooseCalendar() {
         let calendarVC = EKCalendarChooser(selectionStyle: .Multiple, displayStyle: .AllCalendars, entityType: .Event, eventStore: eventStore)
         calendarVC.showsDoneButton = true
@@ -129,9 +159,15 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
             calendarDeniedMessage()
         }
     }
+    /*
+     *called when user selects done in the calendar chooser UI. To-Do: save calendars they select
+     */
     func calendarChooserDidFinish(calendarChooser: EKCalendarChooser) {
         self.navigationController?.popViewControllerAnimated(true)
     }
+    /*
+     * displays a popup to the user telling them that they calendar access denied
+     */
     func calendarDeniedMessage(){
         let alert = UIAlertController(title: "Oops", message: "TaskWranglr needs access to calendars to create a schedule. Calendars can be enabled in settings", preferredStyle: .Alert)
         let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
