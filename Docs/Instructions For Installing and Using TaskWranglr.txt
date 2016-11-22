@@ -1,0 +1,9 @@
+TaskWranglr is an iOS app written in Swift 2.2 (XCode 7.3)
+
+To run in the XCode Simulator, locate and open TaskWranglr/TaskWranglr/TaskWranglr.xcodeproj 
+In the upper left is a run button.
+
+There is a current bug where the app sometimes crashes at the first ever start up. If this happens restart the app.
+Note: When changing the calendar access of TaskWranglr in settings restarts the app. When running in the simulator this halts the debugger and the app must be started again.
+
+TaskWranglr needs access to  user calendars for its scheduling functionality, if access is not given the scheduling functionality is disabled.
