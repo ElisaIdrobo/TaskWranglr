@@ -40,18 +40,30 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
     
     //MARK: -TableView methods
     
-    /*
-     * sets number of sections to the number of sections returned by the fetchedResultsController(aka 1)
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: numberOfSectionsInTableView(tableView: UITableView)
+//  
+// Pre-condition: not called by developer.
+//
+// Post-condition: set the number of sections to the number of sections returned by the fetchedResultsController(aka 1)
+//----------------------------------------------------------------------------------------------------------------------------------
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         if let count = fetchedResultsController.sections{
             return count.count
         }
         return 0
     }
-    /*
-     * set the number of rows to the number of saved tasks
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: tableView(tableView: UITableView, numberOfRowsInSection section: Int)
+//  
+// Pre-condition: not called by developer.
+//
+// Post-condition: set the number of rows to the number of saved tasks
+//----------------------------------------------------------------------------------------------------------------------------------
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         if let sections = fetchedResultsController.sections{
             let sectionInfo = sections[section]
@@ -59,23 +71,44 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
         }
         return 0
     }
-    /*
-     *set the text in a cell to the name of the task
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: configureCell(cell: UITableViewCell, indexPath: NSIndexPath)
+//  
+// Pre-condition: cell and index path are valid cells/indexes
+//
+// Post-condition: set the text in a cell to the name of the task
+//----------------------------------------------------------------------------------------------------------------------------------
     func configureCell(cell: UITableViewCell, indexPath: NSIndexPath){
         let task = fetchedResultsController.objectAtIndexPath(indexPath)
         if let name = task.valueForKey("name") as? String{
             cell.textLabel!.text = name
         }
     }
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath)
+//  
+// Pre-condition: not called by developer
+//
+// Post-condition: set the text in a cell to the name of the task
+//----------------------------------------------------------------------------------------------------------------------------------
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
         configureCell(cell, indexPath: indexPath)
         return cell
     }
-    /*
-     *do initial fetching of task data
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: viewWillAppear(animated: Bool)
+//  
+// Pre-condition: not called by developer. called when the view is going to be loaded
+//
+// Post-condition: initial task data fetched
+//----------------------------------------------------------------------------------------------------------------------------------
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         do{
@@ -86,6 +119,14 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
     }
     
     // Mark: - fetchedResultsController methods
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Functions: fetchedResultsController methods
+//  
+// Pre-condition: not called by developer. called when there is a change to the data the controller monitors
+//
+// Post-condition: data in table is up to date
+//----------------------------------------------------------------------------------------------------------------------------------
     func controllerWillChangeContent(controller: NSFetchedResultsController) {
         tableView.beginUpdates()
     }
@@ -135,9 +176,15 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
     // MARK: - Navigation
 
 
-    /*
-     * if the user has selected a task, the appropriate task/subsets are passed to the new ShowTaskViewController
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) 
+//  
+// Pre-condition: not called by developer. called when the view is going to be closed
+//
+// Post-condition: if the user selected a task, the appropriate task/subsets were passed to the new ShowTaskViewController
+//----------------------------------------------------------------------------------------------------------------------------------
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "addTask" {
             print("adding task")
@@ -160,18 +207,30 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
         
     }
     
-    /*
-     *placeholders for unwinding from the create task screen
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Functions: saveFromTask(unwindSegue: UIStoryboardSegue) and cancelFromTask(unwindSegue: UIStoryboardSegue)
+//  
+// Pre-condition: not called by developer. called when the view is being unwound to.
+//
+// Post-condition: placeholders for unwinding from the create task screen
+//----------------------------------------------------------------------------------------------------------------------------------
     @IBAction func saveFromTask(unwindSegue: UIStoryboardSegue){
         
     }
     @IBAction func cancelFromTask(unwindSegue: UIStoryboardSegue){
         
     }
-    /*
-     *delete task from persistant store if user dismisses it
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: dismissTask(unwindSegue: UIStoryboardSegue)
+//  
+// Pre-condition: not called by developer. called when the view is being unwound to from the user dismissing a task.
+//
+// Post-condition: deleted task from persistant store
+//----------------------------------------------------------------------------------------------------------------------------------
     @IBAction func dismissTask(unwindSegue: UIStoryboardSegue){
         let vc = unwindSegue.sourceViewController as? ShowTaskViewController
         let taskToDismiss = vc!.task
@@ -180,6 +239,8 @@ class TaskListViewController: UITableViewController, NSFetchedResultsControllerD
         managedContext.deleteObject(taskToDismiss)
         do{
             try managedContext.save()
+            //let scheduleViewController know that schedule needs to be updated
+            NSNotificationCenter.defaultCenter().postNotificationName("UpdateSchedule", object: nil)
         } catch let error as NSError{
             print("could not delete \(error), \(error.userInfo)")
         }

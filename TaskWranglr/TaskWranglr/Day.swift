@@ -15,7 +15,7 @@ enum Day: String{
     case Monday 
     case Tuesday
     case Wednesday
-    case Thuresday
+    case Thursday
     case Friday
     case Saturday
     case Sunday

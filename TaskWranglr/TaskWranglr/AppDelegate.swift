@@ -1,4 +1,3 @@
-//
 // Name: Elisa Idrobo
 // Course: CSC 415
 // Semester: Fall 2016
@@ -9,7 +8,7 @@
 // Description: handles states of UIApplication object
 // Last modified on: 11/21/16
 // Created by Elisa Idrobo on 10/28/16
-//
+
 
 import UIKit
 import CoreData
@@ -131,6 +130,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     print("calendar access granted")
                     self.makeCalendar()
                     print("app delegate created calendar")
+                    NSNotificationCenter.defaultCenter().postNotificationName("UpdateSchedule", object: nil)
                 }else{
                     print("calendar access not granted")
                 }
@@ -161,8 +161,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("new calendar would not save")
         }
     }
-
 }
+
 /*
  *adds extensions to NSDate to make it easier to work with
  */
@@ -195,6 +195,5 @@ extension NSDate {
         comp.minute = 0
         comp.second = 0
         return NSCalendar.currentCalendar().dateFromComponents(comp)!
-    }
-    
+    }    
 }

@@ -48,9 +48,14 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     var scheduler:Scheduler!
     @IBOutlet weak var tableView: UITableView!
     
-    /*
-     * initializes the view controller. if the user has not given access to their calendar the Schedule View and its accociated functionality(a schedule) is disabled.
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function:  viewDidLoad()
+//  
+// Pre-condition: the view loaded
+//
+// Post-condition: if the user has not given access to their calendar the Schedule View and its accociated functionality(a schedule) is disabled
+//----------------------------------------------------------------------------------------------------------------------------------
     override func viewDidLoad() {
         super.viewDidLoad()
         print("did stuff")
@@ -64,14 +69,21 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
             scheduleDict = scheduler.getScheduleAsDictionary()
             tableView.delegate = self
             tableView.dataSource = self
+            //make ScheduleViewController an observer of nsnotificationcenter
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ScheduleViewController.runSchedulingAlgorithm(_:)), name:"UpdateSchedule", object: nil)
         }
         if status == EKAuthorizationStatus.Denied || status == EKAuthorizationStatus.Restricted{
             calendarDeniedMessage()//disable the schedule component of the app if no calendar access
         }
     }
-    /*
-     * sets the labels of the table cells to the name and times of each task or calendar event
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath)
+//  
+// Pre-condition: this method is not called by the developer
+//
+// Post-condition: sets the labels of the table cells to the name and times of each task or calendar event
+//----------------------------------------------------------------------------------------------------------------------------------
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
         let event = scheduleDict[day]![indexPath.row]
@@ -93,10 +105,9 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     }
     
     /*
-     * unwind segue after a task is saved(new or updated). Reruns scheduling algorithm.
+     * unwind segue after a task is saved(new or updated). 
      */
     @IBAction func saveFromTask(unwindSegue: UIStoryboardSegue){
-        scheduleDict = scheduler.getScheduleAsDictionary()
     }
     
     /*
@@ -117,9 +128,14 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return scheduleDict[day]!.count
     }
-    /*
-     * responds to user selection of what day's schedule they want to view. Updates the current day displayed
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: dayChange(sender: UISegmentedControl)
+//  
+// Pre-condition: this method is called in response to the user selecting another day in the segmented control
+//
+// Post-condition: Updated the day being displayed
+//----------------------------------------------------------------------------------------------------------------------------------
     @IBAction func dayChange(sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
@@ -129,7 +145,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
         case 2:
             day = Day.Wednesday
         case 3:
-            day = Day.Thuresday
+            day = Day.Thursday
         case 4:
             day = Day.Friday
         case 5:
@@ -143,9 +159,15 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     }
     
     // MARK: -Calendar Events
-    /*
-     * creates calendar chooser UI
-     */
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: chooseCalendar()
+//  
+// Pre-condition: called if user presses calendar button
+//
+// Post-condition: opened the calendar chooser UI if calendar access is authorized
+//----------------------------------------------------------------------------------------------------------------------------------
     func chooseCalendar() {
         let calendarVC = EKCalendarChooser(selectionStyle: .Multiple, displayStyle: .AllCalendars, entityType: .Event, eventStore: eventStore)
         calendarVC.showsDoneButton = true
@@ -159,19 +181,45 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
             calendarDeniedMessage()
         }
     }
-    /*
-     *called when user selects done in the calendar chooser UI. To-Do: save calendars they select
-     */
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: calendarChooserDidFinish(calendarChooser: EKCalendarChooser)
+//  
+// Pre-condition: called after user selected the done button of the calendar chooser view
+//
+// Post-condition: closes the calendar view.  To-Do: save calendars they select
+//----------------------------------------------------------------------------------------------------------------------------------
     func calendarChooserDidFinish(calendarChooser: EKCalendarChooser) {
         self.navigationController?.popViewControllerAnimated(true)
     }
-    /*
-     * displays a popup to the user telling them that they calendar access denied
-     */
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: calendarDeniedMessage()
+//  
+// Pre-condition: EKAuthorizationStatus == denied or restricted
+//
+// Post-condition:  displayed a popup to the user telling them that they calendar access denied
+//----------------------------------------------------------------------------------------------------------------------------------
     func calendarDeniedMessage(){
         let alert = UIAlertController(title: "Oops", message: "TaskWranglr needs access to calendars to create a schedule. Calendars can be enabled in settings", preferredStyle: .Alert)
         let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
         alert.addAction(OKAction)
         self.presentViewController(alert, animated: true, completion: nil)
     }
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: runSchedulingAlgorithm(notification: NSNotification)
+//  
+// Pre-condition: A task or event has been added or updated so the schedule must be updated as well
+//
+// Post-condition:  the scheduling algorithm was ran and the table reloaded
+//----------------------------------------------------------------------------------------------------------------------------------    
+    func runSchedulingAlgorithm(notification: NSNotification){
+        scheduleDict = scheduler.getScheduleAsDictionary()
+        tableView.reloadData()
+    }
+    
 }

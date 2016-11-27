@@ -36,9 +36,15 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     weak var task: NSManagedObject!
     @IBOutlet weak var cancelButton: UIBarButtonItem!
     
-    /*
-     * sets up view. if the user is updating, populates the input fields with the saved task data
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: viewDidLoad()
+//  
+// Pre-condition: called when the view loaded
+//
+// Post-condition: if the user is updating, populated the input fields with the saved task data 
+//----------------------------------------------------------------------------------------------------------------------------------
     override func viewDidLoad() {
         super.viewDidLoad()
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -58,15 +64,20 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    /*
-     * 4 sections: name, time needed to complete, deadline, subtasks
-     */
+
+// 4 sections: name, time needed to complete, deadline, subtasks
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 4 //4 fields need to be inputed
     }
-    /*
-     * link each cell to its cell type
-     */
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath)
+//  
+// Pre-condition: not called by developer
+//
+// Post-condition: linked each cell to its cell type
+//----------------------------------------------------------------------------------------------------------------------------------
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         if(indexPath.section == 0){
@@ -102,9 +113,16 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         }
         
     }
-    /*
-     * sets number of rows to one on all input fields unless it is the subtasks section. Int that case number of rows is equal to the number of subtasks +1
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: tableView(tableView: UITableView, numberOfRowsInSection section: Int)
+//  
+// Pre-condition: not called by developer
+//
+// Post-condition: set number of rows to one on all input fields unless it is the subtasks section. In that case number of rows is
+// now equal to the number of subtasks +1
+//----------------------------------------------------------------------------------------------------------------------------------
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 3{
             return subtasks.count + newSubtasks + 1
@@ -112,9 +130,14 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
             return 1 //each input field needs 1 cell
         }
     }
-    /*
-     * define what input fields are
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: tableView(tableView: UITableView, titleForHeaderInSection section: Int)
+//  
+// Pre-condition: not called by developer
+//
+// Post-condition: labeled each of the input fields
+//----------------------------------------------------------------------------------------------------------------------------------
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if(section == 0){
             return "Name"
@@ -135,7 +158,14 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
    
     @IBOutlet weak var saveButton: UIBarButtonItem!
     
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
+//  
+// Pre-condition: not called by developer. called when the view is about to close.
+//
+// Post-condition: if the save button triggered this function, the task was saved/updated
+//----------------------------------------------------------------------------------------------------------------------------------
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if saveButton === sender{
           //save to core data
@@ -143,9 +173,15 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         }
  
     }
-    /*
-     * create objects accociated with ManagedObjectContext. If updating, update the fields of the task. If creating a new task create the NSManagedObject. DOES NOT COMMIT
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: saveTask()
+//  
+// Pre-condition: the task has been given a name by the user
+//
+// Post-condition: created objects accociated with ManagedObjectContext. If updating, updated the fields of the task. If creating
+// a new task created the NSManagedObject. DOES NOT COMMIT
+//----------------------------------------------------------------------------------------------------------------------------------
     func saveTask(){
         nameField = nameFieldCell.nameField.text
         completionTimeField = completionTimeFieldCell.timeField.countDownDuration
@@ -158,9 +194,15 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         task.setValue(completionTimeField, forKey: "completionTime")
         task.setValue(deadlineField, forKey: "deadline")
     }
-    /*
-     * create objects accociated with ManagedObjectContext. If updating, update the fields of the subtask. If creating a new subtask create the NSManagedObject. DOES NOT COMMIT
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: saveSubtask()
+//  
+// Pre-condition: the task has been given a name by the user
+//
+// Post-condition: created objects accociated with ManagedObjectContext. If updating, updated the fields of the subtask. If 
+// creating a new subtask created the NSManagedObject. DOES NOT COMMIT
+//----------------------------------------------------------------------------------------------------------------------------------
     func saveSubtasks(){
         let entity = NSEntityDescription.entityForName("SubTask", inManagedObjectContext: managedContext)
         
@@ -184,33 +226,55 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         }
         
     }
-    /*
-     * saves everything to core data
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: save()
+//  
+// Pre-condition: the task/subtask has a name
+//
+// Post-condition: the task and its subtasks are saved to core data
+//----------------------------------------------------------------------------------------------------------------------------------
     func save(){
         saveTask()
         saveSubtasks()
         do{
             try managedContext.save()
             print("Successful saving of task/subtasks")
+            //let scheduleViewController know that schedule needs to be updated
+            NSNotificationCenter.defaultCenter().postNotificationName("UpdateSchedule", object: nil)
         }catch let error as NSError{
             print("could not save \(error), \(error.userInfo)")
         }
     }
     //MARK: -UITextFieldDelegate
     
-    /*
-     * deselects textfields if user presses enter
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: textFieldShouldReturn(textField: UITextField)
+//
+// Parameters: UITextField; the textfield for the name of the task or subtasks(this class was made their delegate)
+//
+// Pre-condition: user pressed enter
+//
+// Post-condition: deselected textfields 
+//----------------------------------------------------------------------------------------------------------------------------------
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         checkValidNameEntered()
         textField.resignFirstResponder()
         return true
     }
     
-    /*
-     * If the name field is non-empty allows the user to save, adds new subtask row if subtask name is non-empty
-     */
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: checkValidNameEntered()
+//
+// Pre-condition: user pressed enter
+//
+// Post-condition: If the name field is non-empty the user is allowed to save, or added new subtask row if subtask name is non-empty
+//----------------------------------------------------------------------------------------------------------------------------------
     func checkValidNameEntered(){
         var entered = nameFieldCell.nameField.text ?? ""
         saveButton.enabled = !entered.isEmpty
@@ -220,9 +284,15 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
         }
         
     }
-    /*
-     * creates a new subtask row
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: addSubtask()
+//
+// Pre-condition: the previous subtask has been given a name
+//
+// Post-condition: added a subtask row
+//----------------------------------------------------------------------------------------------------------------------------------
     func addSubtask() {
         newSubtasks += 1
         let index = NSIndexPath(forRow: tableView.numberOfRowsInSection(3), inSection: 3)
@@ -232,9 +302,11 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
     
 }
 
-/*
- *cell type classes. linked to prototype cells in storyboard
- */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+// cell type classes. linked to prototype cells in storyboard
+//----------------------------------------------------------------------------------------------------------------------------------
 class TextFieldCell: UITableViewCell {
     @IBOutlet weak var nameField: UITextField!
 }

@@ -21,136 +21,26 @@ class Scheduler{
     weak var taskCalendar: EKCalendar!
     var tempSchedule: [Day: CalendarDay] = [Day:CalendarDay]()
     var taskEvents:[EKEvent] = [EKEvent]()
+    var tasksNotFullyScheduled:[NSManagedObject] = [NSManagedObject]()
     init(eStore: EKEventStore, mContext: NSManagedObjectContext, frc:NSFetchedResultsController){
         eventStore = eStore
         managedContext = mContext
         fetchedResultsController = frc // should have a fetch request specifying all tasks in order of soonest deadline
+        //even though not currently saving to calendar, it is still needed to create EKEvents
         taskCalendar = eventStore.calendarWithIdentifier(NSUserDefaults.standardUserDefaults().stringForKey("TaskWranglrCalendar")!)!
         
     }
-    
-    /*
-     * get events from the user's calendars
-     */
-    private func fetchCalendarEvents(calendars: [EKCalendar]) -> [EKEvent] {
-        let currentDate = NSDate().toLocalTime()
-        //let dateFormatter = NSDateFormatter()
-        //dateFormatter.dateFormat = "EEEE, MMM dd, yyyy GGG"
-        let sevenDaysDate = currentDate.addDays(6)
-        let eventsPredicate = eventStore.predicateForEventsWithStartDate(currentDate, endDate: sevenDaysDate, calendars: calendars)
-        let calEvents: [EKEvent] = eventStore.eventsMatchingPredicate(eventsPredicate)
-        return calEvents
-    }
-    /*
-     * make a EKEvent for a task event and link it to its corresponding task in the core data model, does not change the tempSchedule
-     */
-    private func createTaskEvent(name:String, timeSeg:TimeSeg, task:NSManagedObject){
-        if(timeSeg.startTime == timeSeg.endTime){return}//ToDo: find actual problem causing this
-        let taskEvent = EKEvent(eventStore: eventStore)
-        taskEvent.calendar = taskCalendar
-        taskEvent.title = name
-        taskEvent.startDate = timeSeg.startTime
-        taskEvent.endDate = timeSeg.endTime
-        /* no efficient way to delete all events from a calendar so this is currently not saving to calendar
-        do{
-            try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: false)
-                    }catch {
-            print("task event could not save")
-        }*/
-        taskEvents.append(taskEvent)
-        
-        let taskEventId = taskEvent.eventIdentifier
-        let entity = NSEntityDescription.entityForName("TaskEvent", inManagedObjectContext: managedContext)
-        let taskEventEntity = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
-        taskEventEntity.setValue(taskEventId, forKey: "id")
-        //taskEventEntity.setValue(NSSet(object: task), forKey: "task")
-        taskEventEntity.setValue(task, forKey: "task")
-        do{
-            try managedContext.save()
-            print("Success saving taskevent")
-        }catch let error as NSError{
-            print("could not save \(error), \(error.userInfo)")
-        }
-    }
-    /*scheduling algorithm
-     *precondidtion: there are calendar events and tasks that exist
-     * makes events for each task so that they will be completed by their due date and have no overlap with other events. Each task cannot be broken up into segments smaller than 30 minutes
-     *returns: an array of task events([EKEvent])
-     */
-    private func schedule()->[EKEvent]{
-        //TO-DO: implement scheduling algorithm
-        //get calendar events ordered by what comes first
-        let cEvents = fetchCalendarEvents(eventStore.calendarsForEntityType(EKEntityType.Event)).sort(){
-                (e1: EKEvent, e2: EKEvent) -> Bool in
-                return e1.startDate.compare(e2.startDate) == NSComparisonResult.OrderedAscending
-        }
-        //tasks
-        do{
-            try fetchedResultsController.performFetch()
-        } catch{
-            fatalError("failed to initialize fetchedResultsController: \(error)")
-        }
-        let tasks:[NSManagedObject] = (fetchedResultsController.fetchedObjects as? [NSManagedObject])!
-        taskEvents = [EKEvent]()//reinit empty task events array
-       
-        let formatter = NSDateFormatter()
-        formatter.dateFormat = "EEEE"
-        let rawDay = formatter.stringFromDate(NSDate())
-        let today = Day(rawValue: rawDay)
-        //create a dictionary of days containing the segments of available time
-        
-        tempSchedule = [Day: CalendarDay]()
-        tempSchedule[.Monday] = initTempDay(filterByDay(cEvents, day: "Monday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Monday, currentDay: today!))))
-        tempSchedule[.Tuesday] = initTempDay(filterByDay(cEvents, day: "Tuesday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Tuesday, currentDay: today!))))
-        tempSchedule[.Wednesday] = initTempDay(filterByDay(cEvents, day: "Wednesday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Wednesday, currentDay: today!))))
-        tempSchedule[.Thuresday] = initTempDay(filterByDay(cEvents, day: "Thuresday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Thuresday, currentDay: today!))))
-        tempSchedule[.Friday] = initTempDay(filterByDay(cEvents, day: "Friday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Friday, currentDay: today!))))
-        tempSchedule[.Saturday] = initTempDay(filterByDay(cEvents, day: "Saturday"),dayOfWeek:  NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Saturday, currentDay: today!))))
-        tempSchedule[.Sunday] = initTempDay(filterByDay(cEvents, day: "Sunday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Sunday, currentDay: today!))))
-        /*print(tempSchedule)
-        let formatter = NSDateFormatter()
-        formatter.timeStyle = NSDateFormatterStyle.FullStyle
-        let exdate = tempSchedule[.Monday]
-        let exdatec = exdate?.availableTime
-        print(formatter.stringFromDate(exdatec![0].endTime))
-        */
-        
-        //for each task schedule it
-        
-        for t in tasks{
-            //get duration to work on task for each day
-            let numDaysToWorkOn = daysTillDeadline((t.valueForKey("deadline") as? NSDate)!)
-            let dayOrder = dayOrderSubarray(numDaysToWorkOn, today: today!)
-            var durations = daysToAssignTo(numDaysToWorkOn,today: today!, days: dayOrder, duration: (t.valueForKey("CompletionTime") as? NSTimeInterval)!)
-            while durations.count == 0{
-                for day in dayOrder{
-                    //if not enough available hours add 1 more hour a day and recalculate
-                    var calDay = tempSchedule[day]
-                    calDay!.availableHours += 3600
-                    tempSchedule[day]=calDay
-                }
-                durations = daysToAssignTo(numDaysToWorkOn,today: today!, days: dayOrder, duration: (t.valueForKey("CompletionTime") as? NSTimeInterval)!)
-            }
-            //now that durations are correct,assign them to times in their corresponding days
-            timeSegsToAssignTo(dayOrder, durations: durations, task: t)
-        }
-        
-        //---------------------------------------------------------------------------------
-        let currentDate = NSDate()
-        let ti = NSTimeInterval(604800)//seconds in 7 days = 60sec x 60min x24hours x 7days
-        let sevenDaysDate = currentDate.dateByAddingTimeInterval(ti)
-        //let taskEventPredicate = eventStore.predicateForEventsWithStartDate(currentDate, endDate: sevenDaysDate, calendars: [taskCalendar])
-        //let taskEvents = eventStore.eventsMatchingPredicate(taskEventPredicate)
-        var events = cEvents + taskEvents
-        events.sortInPlace(){
-            (e1: EKEvent, e2: EKEvent) -> Bool in
-            return e1.startDate.compare(e2.startDate) == NSComparisonResult.OrderedAscending
-        }
-        return events
-    }
-    /*
-     * Top-level scheduling algorith that is what other classes should call to get the schedule. returns  a dictionary of events for each day of the week
-     */
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: getScheduleAsDictionary()
+//   
+// Pre-condition: the schedule object has been initialized
+//
+// Post-condition: returns a dictionary of days of the week and their scheduled events. Events include calendar and task events that
+//ensure that tasks will be completed by their due date. All have no overlap with other events.
+// Exceptions: an event is past its deadline, not enough time to schedule between 9am and 11:59 pm
+//----------------------------------------------------------------------------------------------------------------------------------
     func getScheduleAsDictionary()->[Day:[EKEvent]]{
         var scheduleDict:[Day:[EKEvent]] = [:]
         
@@ -158,15 +48,316 @@ class Scheduler{
         scheduleDict[.Monday] = filterByDay(events, day: "Monday")
         scheduleDict[.Tuesday] = filterByDay(events, day: "Tuesday")
         scheduleDict[.Wednesday] = filterByDay(events, day: "Wednesday")
-        scheduleDict[.Thuresday] = filterByDay(events, day: "Thuresday")
+        scheduleDict[.Thursday] = filterByDay(events, day: "Thursday")
         scheduleDict[.Friday] = filterByDay(events, day: "Friday")
         scheduleDict[.Saturday] = filterByDay(events, day: "Saturday")
         scheduleDict[.Sunday] = filterByDay(events, day: "Sunday")
         return scheduleDict
     }
-    /*
-     * returns the events happening on the specified day from a list of EKEvents
-     */
+    
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: schedule()
+//   
+// Pre-condition: the schedule object has been initialized
+//
+// Post-condition: returns an array of calendar and task events that they ensure that tasks will be completed by their due date.
+// All have no overlap with other events.
+// Exceptions: an event is past its deadline(no events are created), not enough time to schedule between 9am and 11:59 pm(the task is partially scheduled)
+//----------------------------------------------------------------------------------------------------------------------------------
+    private func schedule()->[EKEvent]{
+        
+        //Initialize
+        //----------------------------------------------------------------------------------------------------------------------------------
+        
+        //get calendar events ordered by what comes first
+        let cEvents = fetchCalendarEvents(eventStore.calendarsForEntityType(EKEntityType.Event)).sort(){
+            (e1: EKEvent, e2: EKEvent) -> Bool in
+            return e1.startDate.compare(e2.startDate) == NSComparisonResult.OrderedAscending
+        }
+        //get tasks from core data
+        do{
+            try fetchedResultsController.performFetch()
+        } catch{
+            fatalError("failed to initialize fetchedResultsController: \(error)")
+        }
+        let tasks:[NSManagedObject] = (fetchedResultsController.fetchedObjects as? [NSManagedObject])!
+        
+        //clear taskEvents array
+        taskEvents = [EKEvent]()//reinit empty task events array
+        
+        
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "EEEE"
+        let rawDay = formatter.stringFromDate(NSDate())
+        let today = Day(rawValue: rawDay)
+        
+        //create a dictionary of days containing the segments of available time
+        tempSchedule = [Day: CalendarDay]()
+        tempSchedule[.Monday] = initTempDay(filterByDay(cEvents, day: "Monday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Monday, currentDay: today!))))
+        tempSchedule[.Tuesday] = initTempDay(filterByDay(cEvents, day: "Tuesday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Tuesday, currentDay: today!))))
+        tempSchedule[.Wednesday] = initTempDay(filterByDay(cEvents, day: "Wednesday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Wednesday, currentDay: today!))))
+        tempSchedule[.Thursday] = initTempDay(filterByDay(cEvents, day: "Thursday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Thursday, currentDay: today!))))
+        tempSchedule[.Friday] = initTempDay(filterByDay(cEvents, day: "Friday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Friday, currentDay: today!))))
+        tempSchedule[.Saturday] = initTempDay(filterByDay(cEvents, day: "Saturday"),dayOfWeek:  NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Saturday, currentDay: today!))))
+        tempSchedule[.Sunday] = initTempDay(filterByDay(cEvents, day: "Sunday"), dayOfWeek: NSDate().dateByAddingTimeInterval(Double(3600 * 24 * daysUntil(.Sunday, currentDay: today!))))
+        //----------------------------------------------------------------------------------------------------------------------------------
+        //Main Algorithm
+        
+        print("INIT: \(tempSchedule)")
+        
+        //for each task schedule it
+        for t in tasks{
+
+            
+            //track edge cases
+            var willCreateEvents = true
+            var willFinishCreatingEvents = true
+            
+            let name = t.valueForKey("name") as? String
+            var taskDuration = t.valueForKey("CompletionTime") as? NSTimeInterval
+            
+          
+            
+            // 1. find how many days the task will be assigned to
+            // if deadline has passed set do not create events for it
+            var numDaysToWorkOn = daysTillDeadline((t.valueForKey("deadline") as? NSDate)!)
+            if numDaysToWorkOn <= 0{
+                willCreateEvents = false
+                print("deadline of task:\(name) passed")
+            }
+            //if deadline is in > 1 week for the purpose of scheduling change the number of days to work on to 7 and set the duration to the sum of available hours(avoid adding any hours to a day)
+            if numDaysToWorkOn > 7 {
+                numDaysToWorkOn = 7
+                var newDuration = 0.0
+                for (_,calDay) in tempSchedule{
+                    newDuration += calDay.availableHours
+                }
+                if newDuration < taskDuration{
+                    taskDuration = newDuration
+                }
+            }
+            
+            var dayOrder = [Day]()
+            var durations = [NSTimeInterval]()
+            // 2. find how long user will work on task each day
+            // if durations is not valid-add available hours and re-run until valid durations are found or it is impossible
+            if willCreateEvents {
+                dayOrder = dayOrderSubarray(numDaysToWorkOn, today: today!)
+                durations = durationPerDayAssigned(numDaysToWorkOn, days: dayOrder, taskDuration: taskDuration!)
+                //if empty
+                while durations.count == 0 && willFinishCreatingEvents{
+                    //check if possible aka there is enough available time
+                    var time = 0.0//total available time from all days
+                    for day in dayOrder{
+                        time += tempSchedule[day]!.totalAvailableTimeDuration()
+                    }
+                    if time < taskDuration{ //scheduling not possible
+                        willFinishCreatingEvents = false
+                        for i in 0..<dayOrder.count{
+                            let dur = tempSchedule[dayOrder[i]]!.totalAvailableTimeDuration()
+                            durations.append(dur)
+                        }
+                    }else{
+                        //add 1 hour to available hours and rerun
+                        for i in 0..<dayOrder.count{
+                            time = tempSchedule[dayOrder[i]]!.totalAvailableTimeDuration()
+                            if time > (3600 + tempSchedule[dayOrder[i]]!.availableHours){
+                                tempSchedule[dayOrder[i]]!.availableHours += 3600
+                            }else{
+                                tempSchedule[dayOrder[i]]!.availableHours = time
+                            }
+                        }
+                        durations = durationPerDayAssigned(numDaysToWorkOn, days: dayOrder, taskDuration: taskDuration!)
+                    }
+                }
+            }
+
+            // 3. now that durations are correct,assign them to times in their corresponding days(this method creates EKEvent for each task segment)
+            if willCreateEvents{
+                for i in 0..<dayOrder.count{
+                    timeSegsToAssign(dayOrder[i], duration: durations[i], task: t)
+                }
+            }
+            // 4. handle errors
+            if !willCreateEvents || !willFinishCreatingEvents{
+                tasksNotFullyScheduled.append(t)
+                print("Task: \(name) is either past its deadline or cannot be finished before its deadline either because it is impossible or because sleep would be lost. willCreateEvents: \(willCreateEvents)")
+            }
+        }
+        
+        //------------------------------------------------------------------------------------------------------------------------------------
+        //combine generated events with calendar events and return
+        var events = cEvents + taskEvents
+        events.sortInPlace(){
+            (e1: EKEvent, e2: EKEvent) -> Bool in
+            return e1.startDate.compare(e2.startDate) == NSComparisonResult.OrderedAscending
+        }
+        return events
+    }
+
+   
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: fetchCalendarEvents(calendars: [EKCalendar])
+//
+// Parameters:
+//      input [EKCalendar]; an array of all calendars that the scheduling algorithm will use(calendar selection by the user is unimplemented)
+//   
+// Pre-condition: the eventStore object exists
+//
+// Post-condition: Returns an array of calendar events that happen over the next 7 days including the current day
+//----------------------------------------------------------------------------------------------------------------------------------
+    private func fetchCalendarEvents(calendars: [EKCalendar]) -> [EKEvent] {
+        let currentDate = NSDate().toLocalTime()
+        let sevenDaysDate = currentDate.addDays(6)
+        let eventsPredicate = eventStore.predicateForEventsWithStartDate(currentDate, endDate: sevenDaysDate, calendars: calendars)
+        let calEvents: [EKEvent] = eventStore.eventsMatchingPredicate(eventsPredicate)
+        return calEvents
+    }
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: initTempDay(eventsOnDay: [EKEvent], dayOfWeek: NSDate)
+//
+// Parameters:
+//      input [EKEvent]; an array of all calendar events for the day of the week given
+//      input NSDate; the day of the week to be initalized
+//   
+// Pre-condition: the eventsOnDay is sorted by what comes earlier
+//
+// Post-condition: Returns a CalendarDay object which assumes that no more than 12 hours a day can be scheduled
+//----------------------------------------------------------------------------------------------------------------------------------
+    private func initTempDay(eventsOnDay: [EKEvent], dayOfWeek: NSDate) -> CalendarDay {
+        //edgecases
+        if( eventsOnDay.count) == 0{
+            let calendar = NSCalendar.currentCalendar()
+            let components = calendar.components([.Month, .Day,.Year], fromDate: dayOfWeek)
+            components.hour = 9
+            components.minute = 0
+            components.second = 0
+            let startDate = calendar.dateFromComponents(components)
+            components.hour = 23
+            components.minute = 59
+            components.second = 0
+            let endDate = calendar.dateFromComponents(components)
+            return CalendarDay(availableHours: NSTimeInterval(3600*12), shortestSeg: NSTimeInterval(3600*12), availableTime: [TimeSeg(startTime: startDate! ,endTime: endDate!)], calendarScheduledHours: 0.0)
+        }else if(eventsOnDay.count == 1){
+            let calendar = NSCalendar.currentCalendar()
+            let event = eventsOnDay[0]
+            let components = calendar.components([.Month, .Day,.Year], fromDate: event.startDate)
+            components.hour = 9
+            components.minute = 0
+            components.second = 0
+            let startDate = calendar.dateFromComponents(components)
+            components.hour = 23
+            components.minute = 59
+            components.second = 0
+            let endDate = calendar.dateFromComponents(components)
+            
+            let timeSegOne = TimeSeg(startTime: startDate!, endTime: event.startDate)
+            var shortestSeg = timeSegOne.duration()
+            let timeSegTwo = TimeSeg(startTime: event.endDate, endTime: endDate!)
+            let timeSegTwoDuration = timeSegTwo.duration()
+            if timeSegTwoDuration < shortestSeg{
+                shortestSeg = timeSegTwoDuration
+            }
+            let eventDuration = event.endDate.timeIntervalSinceDate(event.startDate)
+            var availableHours = NSTimeInterval(3600 * 12 - eventDuration)
+            if availableHours < 0{
+                availableHours = 0
+            }
+            var availableTime = [TimeSeg]()
+            var checkEventDuration = timeSegOne.duration()
+            if checkEventDuration > 1800{ //remove available time if less than half an hour
+                availableTime.append(timeSegOne)
+            }else{
+                shortestSeg = timeSegTwo.duration()
+            }
+            checkEventDuration = timeSegTwo.duration()
+            if checkEventDuration > 1800{ //remove available time if less than half an hour
+                availableTime.append(timeSegTwo)
+            }else{
+                shortestSeg = timeSegOne.duration()
+            }
+            if availableTime.count == 0{
+                shortestSeg = 0.0
+                availableHours = 0.0
+            }
+
+            return CalendarDay(availableHours: availableHours, shortestSeg: shortestSeg, availableTime: availableTime, calendarScheduledHours: eventDuration)
+        }
+        //expected case
+        var eTime = 0.0
+        for event in eventsOnDay{
+            let dur = event.endDate.timeIntervalSinceDate(event.startDate)
+            eTime += dur
+        }
+        //var availableTime = 0
+        var shortestSeg = 60*60*12.0
+        var availableTimeSegs = [TimeSeg]()
+        let components = NSCalendar.currentCalendar().components([.Month, .Day,.Year], fromDate: eventsOnDay[eventsOnDay.count-1].endDate)
+        components.hour = 9
+        components.minute = 0
+        components.second = 0
+        var newdate = NSCalendar.currentCalendar().dateFromComponents(components)
+        var check = TimeSeg.init(startTime: newdate!, endTime: eventsOnDay[0].startDate)
+        var checkEventDuration = check.duration()
+        if checkEventDuration >= 1800{ //make sure time segment is longer than half an hour
+            availableTimeSegs.append(check)
+            shortestSeg = check.duration()
+        }
+        for i in 0..<eventsOnDay.count-1{
+            let newSeg = TimeSeg.init(startTime: eventsOnDay[i].endDate, endTime: eventsOnDay[i+1].startDate)
+            if newSeg.startTime != newSeg.endTime{
+                availableTimeSegs.append(newSeg)
+                let duration = eventsOnDay[i+1].startDate.timeIntervalSinceDate(eventsOnDay[i].endDate)
+                //availableTime = availableTime + duration
+                if shortestSeg > duration{
+                    shortestSeg = duration
+                }
+            }
+        }
+        components.hour = 23
+        components.minute = 59
+        newdate = NSCalendar.currentCalendar().dateFromComponents(components)
+        check = TimeSeg.init(startTime: eventsOnDay[eventsOnDay.count-1].endDate, endTime: newdate!)
+        checkEventDuration = check.duration()
+        if checkEventDuration >= 1800{ //make sure time segment is longer than half an hour
+            availableTimeSegs.append(check)
+            let duration = newdate!.timeIntervalSinceDate(eventsOnDay[eventsOnDay.count-1].endDate)
+            //availableTime = availableTime + duration
+            if shortestSeg > duration{
+                shortestSeg = duration
+            }
+        }
+        availableTimeSegs.sortInPlace({
+            (t1:TimeSeg, t2:TimeSeg)->Bool in
+            let t1Duration = t1.duration()
+            let t2Duration = t2.duration()
+            return t1Duration < t2Duration
+        })
+        var availableHours = ((3600*12) - eTime)
+        if availableHours < 0{
+            availableHours = 0
+        }
+        let calendarDay = CalendarDay(availableHours: NSTimeInterval(availableHours), shortestSeg: NSTimeInterval(shortestSeg), availableTime: availableTimeSegs, calendarScheduledHours: eTime)
+        return calendarDay
+    }
+    
+   
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: filterByDay(arr:[EKEvent], day:String)
+//
+// Parameters:
+//      input [EKEvent]; an array of events
+//      input string; the day of the week filtered for(ex. "Monday")
+//   
+// Pre-condition: the day string is a vaild day of the week
+//
+// Post-condition: returns the events happening on the specified day
+//----------------------------------------------------------------------------------------------------------------------------------
     private func filterByDay(arr:[EKEvent], day:String)->[EKEvent]{
         return arr.filter({
             (e1: EKEvent) -> Bool in
@@ -176,85 +367,19 @@ class Scheduler{
             return dayString == day
         })
     }
-    /*
-     * returns number of days from the given current day till the next given day
-     */
-    private func daysUntil(day:Day, currentDay: Day)->Int{
-        let order = dayOrderSubarray(7, today: currentDay)
-        return order.indexOf(day)!
-    }
     
-    //parameter: eventsOnDay are events from the same day sorted by what comes earlier
-    //returns an an instance of CalendarDay for that day assuming no more than 12 hours a day of time that can be scheduled
-    private func initTempDay(eventsOnDay: [EKEvent], dayOfWeek: NSDate) -> CalendarDay {
-        //edgecases
-        if( eventsOnDay.count) == 0{
-            let components = NSCalendar.currentCalendar().components([.Month, .Day,.Year], fromDate: dayOfWeek)
-            components.hour = 9
-            components.minute = 0
-            let startDate = NSCalendar.currentCalendar().dateFromComponents(components)
-            components.hour = 23
-            components.minute = 59
-            let endDate = NSCalendar.currentCalendar().dateFromComponents(components)
-            return CalendarDay(availableHours: NSTimeInterval(3600*12), shortestSeg: NSTimeInterval(3600*12), availableTime: [TimeSeg(startTime: startDate! ,endTime: endDate!)])
-        }else if(eventsOnDay.count == 1){
-            let event = eventsOnDay[0]
-            let components = NSCalendar.currentCalendar().components([.Month, .Day,.Year], fromDate: event.startDate)
-            components.hour = 9
-            components.minute = 0
-            let startDate = NSCalendar.currentCalendar().dateFromComponents(components)
-            components.hour = 23
-            components.minute = 59
-            let endDate = NSCalendar.currentCalendar().dateFromComponents(components)
-            let timeSegOne = TimeSeg(startTime: startDate!, endTime: event.startDate)
-            var shortestSeg = timeSegOne.endTime.timeIntervalSinceDate(timeSegOne.startTime)
-            let timeSegTwo = TimeSeg(startTime: event.endDate, endTime: endDate!)
-            let timeSegTwoDuration = timeSegTwo.endTime.timeIntervalSinceDate(timeSegTwo.startTime)
-            if timeSegTwoDuration < shortestSeg{
-                shortestSeg = timeSegTwoDuration
-            }
-            let eventDuration = event.endDate.timeIntervalSinceDate(event.startDate)
-            let availableHours = NSTimeInterval(3600 * 12 - eventDuration)
-            return CalendarDay(availableHours: availableHours, shortestSeg: shortestSeg, availableTime: [timeSegOne,timeSegTwo])
-        }
-        //expected case
-        var eTime = 0
-        for event in eventsOnDay{
-            let dur = event.endDate.timeIntervalSinceDate(event.startDate)
-            eTime += Int(dur)
-        }
-        //var availableTime = 0
-        var shortestSeg = 60*60*12
-        var availableTimeSegs = [TimeSeg]()
-        for i in 0..<eventsOnDay.count-1{
-            availableTimeSegs.append(TimeSeg.init(startTime: eventsOnDay[i].endDate, endTime: eventsOnDay[i+1].startDate))
-            let duration = Int(eventsOnDay[i+1].startDate.timeIntervalSinceDate(eventsOnDay[i].endDate))
-            //availableTime = availableTime + duration
-            if shortestSeg > duration{
-                shortestSeg = duration
-            }
-        }
-        let components = NSCalendar.currentCalendar().components([.Month, .Day,.Year], fromDate: eventsOnDay[eventsOnDay.count-1].endDate)
-        components.hour = 23
-        components.minute = 59
-        let newdate = NSCalendar.currentCalendar().dateFromComponents(components)
-        availableTimeSegs.append(TimeSeg.init(startTime: eventsOnDay[eventsOnDay.count-1].endDate, endTime: newdate!))
-        let duration = Int(newdate!.timeIntervalSinceDate(eventsOnDay[eventsOnDay.count-1].endDate))
-        //availableTime = availableTime + duration
-        if shortestSeg > duration{
-            shortestSeg = duration
-        }
-        availableTimeSegs.sortInPlace({
-            (t1:TimeSeg, t2:TimeSeg)->Bool in
-                let t1Duration = t1.endTime.timeIntervalSinceDate(t1.startTime)
-                let t2Duration = t2.endTime.timeIntervalSinceDate(t2.startTime)
-                return t1Duration < t2Duration
-        })
-        let availableTime = ((3600*12) - eTime)
-        let calendarDay = CalendarDay(availableHours: NSTimeInterval(availableTime), shortestSeg: NSTimeInterval(shortestSeg), availableTime: availableTimeSegs)
-        return calendarDay
-    }
-    
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: daysTillDeadline(deadline: NSDate)
+//
+// Parameters:
+//      input NSDate; date of the deadline
+//   
+// Pre-condition: the deadline is 11:59pm of the given date
+//
+// Post-condition: returns the number of days until the deadline including the current day and day of deadline
+//----------------------------------------------------------------------------------------------------------------------------------
     private func daysTillDeadline(deadline: NSDate)->Int{
         let currentDate = NSDate().stripToDay()
         let deadlineDay = deadline.stripToDay()
@@ -262,54 +387,116 @@ class Scheduler{
         let daysToWorkOn = (timeTill / (3600.0*24.0))
         return Int(daysToWorkOn)
     }
+
     
-    //returns an array of time per day to work on assignment corresponding to the array generated by the dayOrderSubarray method
-    //returns an empty array if not enough available hours
-    private func daysToAssignTo(numDaysToWorkOn: Int,today: Day, days: [Day], duration: NSTimeInterval)->[NSTimeInterval]{
-        var segDuration = segmentTask(numDaysToWorkOn, duration: duration)
-        var segByDay = [NSTimeInterval](count: numDaysToWorkOn, repeatedValue: NSTimeInterval(-1))
+    
+
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: daysUntil(day:Day, currentDay: Day)
+//
+// Parameters:
+//      input day; the later day
+//      input currentDay: the earlierDay
+//   
+// Pre-condition: current day is earlier than day
+//
+// Post-condition: returns the number ofdays between them(ex. thursday till monday->4)
+//----------------------------------------------------------------------------------------------------------------------------------
+    private func daysUntil(day:Day, currentDay: Day)->Int{
+        let order = dayOrderSubarray(7, today: currentDay)//return full week starting with currentDay
+        return order.indexOf(day)!
+    }
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: durationPerDayAssigned(numDaysToWorkOn: Int, days: [Day], taskDuration: NSTimeInterval)
+//
+// Parameters:
+//      input Int; the number of days to work on the task
+//      input [Day]: an array of the days to work on(ex:[.Friday, .Saturday, .Sunday, .Monday, .Tuesday])
+//      input NSTimeInterval: a NSTimeInterval representing the time to complete the  task that the user inputed
+//  
+// Pre-condition: the number of days to work on is < 7, the taskDuration is correct(in seconds)
+//
+// Post-condition: returns an array of time per day to work on the task corresponding to the days array
+//  exception: returns an empty array if not enough available hours. Has not updated any instance variables, particallly tempSchedule
+//----------------------------------------------------------------------------------------------------------------------------------
+    private func durationPerDayAssigned(numDaysToWorkOn: Int, days: [Day], taskDuration: NSTimeInterval)->[NSTimeInterval]{
         var numDays = numDaysToWorkOn
-        var dur = duration
+        var dur = taskDuration
         var dayOrder = days
+        var segByDay = [NSTimeInterval](count: numDaysToWorkOn, repeatedValue: NSTimeInterval(-1))//create empty array to return
+        //initialize segByDay
+        for i in 0..<segByDay.count{
+            if tempSchedule[dayOrder[i]]!.shortestSeg == 0{
+                segByDay[i] = 0 //if there are no available hours that day assign no time to it
+                numDays -= 1
+            }
+        }// make sure that if all days have been assigned zero an empty array will be returned
+        var count = 0.0
+        for value in segByDay{
+            count += value
+        }
+        if count == 0.0 {return [NSTimeInterval]() }
+        
+        var segDuration:[NSTimeInterval] = segmentTask(numDays, duration: dur)
         //add expected durations
-        var restart = true
+        var restart = false
         repeat{
+            restart = false
             for i in 0..<dayOrder.count{
+                if restart == true {break}
                 if segByDay[i] == -1 {
-                    let aT:NSTimeInterval = (tempSchedule[dayOrder[i]]?.availableHours)!
-                    if aT < segDuration[0]{
-                        segByDay[i] = aT
+                    let availableHours:NSTimeInterval = (tempSchedule[dayOrder[i]]?.availableHours)!
+                    if availableHours < segDuration[0]{
+                        let durForDay = availableHours - (availableHours % 1800)
+                        segByDay[i] = durForDay
                         numDays -= 1
-                        dur = duration - aT
+                        dur = dur - durForDay
                         if numDays == 0{
                             //not enough available hours
                             return [NSTimeInterval]()
                         }
                         segDuration = segmentTask(numDays, duration: dur)
-                        restart = false
+                        restart = true
                     }
                 }
             }
-        } while !restart
+        } while restart
         //add the extra min:
         for i in 0..<segByDay.count{
             if segByDay[i] == -1{
-                if (tempSchedule[dayOrder[i]]?.availableHours)! > segDuration[1]{
+                if (tempSchedule[dayOrder[i]]?.availableHours)! > segDuration[1]{ //if there are no available time segments available hours should equal 0
                     segByDay[i] = segDuration[1]
                     segDuration[1] = segDuration[0]
+                    
                 }else{
                     segByDay[i] = segDuration[0]
                 }
+                dur = dur - segByDay[i]
             }
         }
+        if dur > 0.0 {
+            return [NSTimeInterval]()}
+        
         return segByDay
     }
 
-
-    //precondition: num is <= 7
-    // returns an array of days ordered with the given day(today) first
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: dayOrderSubarray(numDaysToWorkOn: Int,today: Day)
+//
+// Parameters:
+//      input Int; the number of days to work on the task
+//      input Day: the day that will be the first element of the returned array
+//  
+// Pre-condition: the number of days to work on is < 7
+//
+// Post-condition: returns an array of days ordered with the given day(today) first
+//----------------------------------------------------------------------------------------------------------------------------------
     private func dayOrderSubarray(numDaysToWorkOn: Int,today: Day)->[Day]{
-        let dayOrder: [Day] = [.Monday, .Tuesday, .Wednesday, .Thuresday, .Friday, .Saturday, .Sunday]
+        let dayOrder: [Day] = [.Monday, .Tuesday, .Wednesday, .Thursday, .Friday, .Saturday, .Sunday]
         var subarray: [Day]
         //expected case
         let index:Int = dayOrder.indexOf(today)!
@@ -328,72 +515,103 @@ class Scheduler{
         }
         return subarray
     }
-    
-    //segment a task into num pieces, rounding to nearest halfhour
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function:segmentTask(num: Int, duration: NSTimeInterval)
+//
+// Parameters:
+//      input Int; number of segments to make
+//      input NSTimeInterval: the time interval to segment
+//  
+// Pre-condition: num is > 0, the time interval is correct(in seconds)
+//
+// Post-condition: returns an array of NSTimeInterval [segment time, segment time+extra] of the duration segmented, rounding to nearest halfhour
+//----------------------------------------------------------------------------------------------------------------------------------
     private func segmentTask(num: Int, duration: NSTimeInterval)->[NSTimeInterval]{
         //need to do calculations as minutes to round days to nearest half hour
-        let halfHour = 30
-        let durMin:Int = Int(duration)/60//temp make minutes
-        var seg = Int( Double(durMin) / Double(num) )
+        let halfHour = 15
+        let durMin = duration/60.0//temp make minutes
+        var seg = Int( durMin / Double(num) )
         seg = seg / halfHour// currently number of half hours
-        seg = seg*30 //back to min
-        let lastExtraSeg = seg + (((durMin/num) % halfHour) * num)
-        return [ NSTimeInterval(seg*60), NSTimeInterval(lastExtraSeg*60) ]
+        seg = seg*halfHour //back to min
+        var lastExtraSeg = seg + Int(((durMin/Double(num)) % Double(halfHour)) * Double(num))
+        //make sure that there was no precision errors
+        seg = seg * 60
+        lastExtraSeg = lastExtraSeg * 60
+        let totalSeconds:Double = Double(seg * (num-1) + lastExtraSeg)
+        if totalSeconds < duration{
+            let difference = duration - totalSeconds
+            lastExtraSeg = lastExtraSeg + Int(difference)
+        }
+        let a = NSTimeInterval(seg)
+        let b = NSTimeInterval(lastExtraSeg)
+        return [ a , b ]
     }
-    //parameters: arrays of how long to work on task and array for mapping to day of the week
-    //precondition assumes that durations are correct and the availableTime[] in tempschedule are sorted by duration of each available TimeSeg
-    //postconditions: all events for tasks have been made and the available time each day has been updated
-    private func timeSegsToAssignTo(days: [Day], durations: [NSTimeInterval], task: NSManagedObject){
-        let name = task.valueForKey("name") as? String
-        for i in 0..<days.count{
-            var day: CalendarDay = tempSchedule[days[i]]!
-            let availableHours = day.availableHours
-            var duration = durations[i]
-            var eventCreated = false
-            while !eventCreated{
-                if availableHours >= durations[i]{
-                    //create event and update day's availableTimes
-                    let timeSeg = findSegInDay( day, duration: duration)
-                    
-                    if(timeSeg.endTime.timeIntervalSinceDate(timeSeg.startTime) < duration){
-                        //timeseg is too short
-                        createTaskEvent(name!, timeSeg: timeSeg, task: task)
-                        let newTimeSeg = TimeSeg(startTime: timeSeg.endTime, endTime: timeSeg.endTime)
-                        let index = day.availableTime.indexOf({
-                            (t:TimeSeg)->Bool in
-                            return t.startTime == timeSeg.startTime && t.endTime == timeSeg.endTime
-                        })
-                        day.updateTimeSeg(newTimeSeg, segIndex: index!)
-                        tempSchedule[days[i]] = day
-                        
-                        duration = duration - timeSeg.endTime.timeIntervalSinceDate(timeSeg.startTime)
-                    }else{
-                        //task fits into segment
-                        let newStartTime = timeSeg.startTime.dateByAddingTimeInterval(duration)
-                        let newTimeSeg = TimeSeg(startTime: newStartTime, endTime: timeSeg.endTime)
-                        let index = day.availableTime.indexOf({
-                            (t:TimeSeg)->Bool in
-                            return t.startTime == timeSeg.startTime && t.endTime == timeSeg.endTime
-                        })
-                        day.updateTimeSeg(newTimeSeg, segIndex: index!)
-                        tempSchedule[days[i]] = day
-                        let taskSeg = TimeSeg(startTime: timeSeg.startTime, endTime: newTimeSeg.startTime)
-                        createTaskEvent(name!, timeSeg: taskSeg, task: task)
-                        eventCreated =  true
-                    }
-                }else{
-                    day.availableHours = availableHours + 3600 //add another hour
-                }
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: timeSegsToAssign(dayOfWeek: Day, duration: NSTimeInterval, task:NSManagedObject)
+//
+// Parameters:
+//      input Day; the day of the week to schedule
+//      input NSTimeInterval; the time interval representing the time to schedule for the given day
+//      input NSManagedObject; the task that is being scheduled 
+//  
+// Pre-condition: the given duration corresponds to the given day ie it is possible to schedule the task for the given duration on the day
+//
+// Post-condition: finds available time segments in tempSchedule[dayOfWeek], updates dayOfWeek's availableHours and available 
+// time segments, and creates an EKEvent for the task and saves it to taskEvents[]
+//----------------------------------------------------------------------------------------------------------------------------------
+    private func timeSegsToAssign(dayOfWeek: Day, duration: NSTimeInterval, task:NSManagedObject){
+        if duration == 0{ return }//a day with no scheduled time is not an error but no task should be created
+        var eventCreated = false
+        var dur = duration
+        while !eventCreated{
+            let timeSeg = findSegInDay( tempSchedule[dayOfWeek]!, duration: dur)
+            var newTimeSeg: TimeSeg
+            if(timeSeg.duration() < dur){
+                //timeseg is too short
+                createTaskEvent(timeSeg, task: task)
+                newTimeSeg = TimeSeg(startTime: timeSeg.endTime, endTime: timeSeg.endTime)
+            }else{
+                //timseg is >= duration
+                let newStartTime = timeSeg.startTime.dateByAddingTimeInterval(dur)
+                newTimeSeg = TimeSeg(startTime: newStartTime, endTime: timeSeg.endTime)
+                
+                let taskSeg = TimeSeg(startTime: timeSeg.startTime, endTime: newTimeSeg.startTime)
+                createTaskEvent(taskSeg, task: task)
+                eventCreated =  true
             }
+            let index = tempSchedule[dayOfWeek]!.availableTime.indexOf({
+                (t:TimeSeg)->Bool in
+                return t.startTime == timeSeg.startTime && t.endTime == timeSeg.endTime
+            })
+            tempSchedule[dayOfWeek]!.updateTimeSeg(newTimeSeg, segIndex: index!)
+            dur -= timeSeg.duration()
         }
     }
-    //given a calendar day return a segment of available time that is >= duration(but the shortest possible)
-    //if none are long enough returns the longest
+    
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: findSegInDay(day: CalendarDay, duration: NSTimeInterval)
+//
+// Parameters:
+//      input Day; the day of the week to schedule
+//      input NSTimeInterval; the time interval representing the time to schedule for the given day 
+//  
+// Pre-condition: the given duration is in seconds, the day given has available time segments
+//
+// Post-condition: finds available time segment in tempSchedule[dayOfWeek] >= duration(shortest possible). If no time segment 
+// is long enough returns the longest. Nothing in tempSchedule is updated, the appropriate time segment is only returned
+//----------------------------------------------------------------------------------------------------------------------------------
     private func findSegInDay(day: CalendarDay, duration: NSTimeInterval)->TimeSeg{
         let timeSegs = day.availableTime
+        if day.shortestSeg == 0{
+            print("Error: a day with no available time segments was passed to the findSegInDay")
+            print(day.availableHours)
+        }
         var j = 0
         while j < timeSegs.count{
-            if timeSegs[j].endTime.timeIntervalSinceDate(timeSegs[j].startTime) >= duration{
+            if timeSegs[j].duration() >= duration{
                 return timeSegs[j]
             }
             j += 1
@@ -403,6 +621,51 @@ class Scheduler{
         return timeSegs[j]
     }
     
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: createTaskEvent(timeSeg:TimeSeg, task:NSManagedObject)
+//
+// Parameters:
+//      input TimeSeg; timeSegment of the task event to be created
+//      input NSManagedObject; the corresponding task to the event that will be created
+//  
+// Pre-condition: timeSeg is correct and has no overlap with other events
+//
+// Post-condition: made an EKEvent for a task event and linked it to its corresponding task in the core data model, does not change the tempScheduled, saved the event in taskEvents
+//----------------------------------------------------------------------------------------------------------------------------------
+    private func createTaskEvent(timeSeg:TimeSeg, task:NSManagedObject){
+        let name = task.valueForKey("name") as? String
+        if(timeSeg.startTime == timeSeg.endTime){
+            print("start time of segment == end time. event not created")
+            return}//ToDo: find actual problem causing this
+        let taskEvent = EKEvent(eventStore: eventStore)
+        taskEvent.calendar = taskCalendar
+        taskEvent.title = name!
+        taskEvent.startDate = timeSeg.startTime
+        taskEvent.endDate = timeSeg.endTime
+        /* no efficient way to delete all events from a calendar so this is currently not saving to calendar
+         do{
+         try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: false)
+         }catch {
+         print("task event could not save")
+         }*/
+        taskEvents.append(taskEvent)
+        
+        let taskEventId = taskEvent.eventIdentifier
+        let entity = NSEntityDescription.entityForName("TaskEvent", inManagedObjectContext: managedContext)
+        let taskEventEntity = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+        taskEventEntity.setValue(taskEventId, forKey: "id")
+        //taskEventEntity.setValue(NSSet(object: task), forKey: "task")
+        taskEventEntity.setValue(task, forKey: "task")
+        do{
+            try managedContext.save()
+            print("Success saving taskevent")
+        }catch let error as NSError{
+            print("could not save \(error), \(error.userInfo)")
+        }
+    }
+    
+
 }
 
 /*
@@ -411,11 +674,25 @@ class Scheduler{
 struct TimeSeg{
     var startTime: NSDate
     var endTime: NSDate
+    
+    func duration() -> NSTimeInterval{
+        return endTime.timeIntervalSinceDate(startTime)
+    }
 }
 struct CalendarDay{
     var availableHours: NSTimeInterval //in seconds
     var shortestSeg: NSTimeInterval
     var availableTime: [TimeSeg]
+    var calendarScheduledHours: NSTimeInterval
+    //
+    func totalAvailableTimeDuration()-> NSTimeInterval{
+        var time = 0.0
+        for s in availableTime{
+            time += s.duration()
+        }
+        return time
+    }
+    
     //sorted by time order doesnt need to be assumed
     mutating func updateTimeSeg(newSeg: TimeSeg, segIndex: Int){
         let currSeg = availableTime[segIndex]
@@ -426,6 +703,10 @@ struct CalendarDay{
         if newDuration < (60*30){
            availableHours = availableHours - newDuration
             availableTime.removeAtIndex(segIndex)
+            if availableTime.count == 0{
+                shortestSeg = 0
+                availableHours = 0.0
+            }
         }else{
             if shortestSeg > newDuration{
                 shortestSeg = newDuration

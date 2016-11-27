@@ -50,9 +50,15 @@ class ShowTaskViewController: UITableViewController {
         }
         return 1
     }
-    /*
-     * sets titles of sections to info they display
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function:  tableView(tableView: UITableView, titleForHeaderInSection section: Int)
+//
+//  
+// Pre-condition: not called by developer
+//
+// Post-condition: set titles of sections to info they display
+//----------------------------------------------------------------------------------------------------------------------------------
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if(section == 0){
             return "Name"
@@ -66,10 +72,15 @@ class ShowTaskViewController: UITableViewController {
             return "default"
         }
     }
-
-    /*
-     * customizes label of cell based on type of data
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function:  tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath)
+//
+//  
+// Pre-condition: not called by developer
+//
+// Post-condition: customizes label of table cell based on type of data
+//----------------------------------------------------------------------------------------------------------------------------------
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
         let ct = task.valueForKey("completionTime") as? NSTimeInterval
@@ -94,16 +105,30 @@ class ShowTaskViewController: UITableViewController {
         return cell
     }
     
-    //if dismiss button unwind and dismiss task(segue currently goes to tasklistviewcontroller)
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function:  dismissTask(sender: UIButton)
+//
+// Parameters: UIButton; the dismiss button
+//  
+// Pre-condition: User wants to dismiss a task
+//
+// Post-condition: seque initiated to tasklistviewcontroller(that VC deletes the task)
+//----------------------------------------------------------------------------------------------------------------------------------
     @IBAction func dismissTask(sender: UIButton) {
         performSegueWithIdentifier("dismissTask", sender: self)
     }
     
     // MARK: - Navigation
 
-    /*
-     * when user wants to update the displayed task the task/subtask data is passed to the new TaskFormViewController 
-     */
+//----------------------------------------------------------------------------------------------------------------------------------
+//
+//  Function: prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
+//  
+// Pre-condition: a segue is about to happen
+//
+// Post-condition: if user wants to update the displayed task the task/subtask data is passed to the new TaskFormViewController 
+//----------------------------------------------------------------------------------------------------------------------------------
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "editTask" {
             //pass the task the user selected to the new TaskFormViewController
