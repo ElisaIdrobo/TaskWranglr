@@ -6,7 +6,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename: Scheduler.swift
 // Description: Runs the scheduling algorithm. Scheduler should never be instantiated if calendar access is not authorized
-// Last modified on: 11/22/16
+// Last modified on: 11/27/16
 //  Created by Elisa Idrobo on 11/19/16.
 
 import Foundation
