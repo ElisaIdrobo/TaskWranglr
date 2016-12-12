@@ -6,8 +6,8 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename: Scheduler.swift
 // Description: Runs the scheduling algorithm. Scheduler should never be instantiated if calendar access is not authorized
-// Last modified on: 11/27/16
-//  Created by Elisa Idrobo on 11/19/16.
+// Last modified on: 12/12/16
+// Created by Elisa Idrobo on 11/19/16.
 
 import Foundation
 import EventKit
@@ -38,12 +38,29 @@ class Scheduler{
 // Pre-condition: the schedule object has been initialized
 //
 // Post-condition: returns a dictionary of days of the week and their scheduled events. Events include calendar and task events that
-//ensure that tasks will be completed by their due date. All have no overlap with other events.
+//ensure that tasks will be completed by their due date. All have no overlap with other events. Events are saved to calendar
 // Exceptions: an event is past its deadline, not enough time to schedule between 9am and 11:59 pm
 //----------------------------------------------------------------------------------------------------------------------------------
     func getScheduleAsDictionary()->[Day:[EKEvent]]{
         var scheduleDict:[Day:[EKEvent]] = [:]
-        
+        //first empty current TaskWranglr calendar
+        let currentDate = NSDate().toLocalTime()
+        let sevenDaysDate = currentDate.addDays(6)
+        let eventsPredicate = eventStore.predicateForEventsWithStartDate(currentDate, endDate: sevenDaysDate, calendars: [taskCalendar])
+        for task in eventStore.eventsMatchingPredicate(eventsPredicate){
+            do{
+                try eventStore.removeEvent(task, span: EKSpan.ThisEvent, commit: false)
+                
+            }catch{
+                print("task event could not be removed: \(task.title)")
+            }
+        }
+        do{
+            try eventStore.commit()
+        }catch {
+            print("task events could not be removed from taskwranglr calendar")
+        }
+        //create schedule
         let events = schedule()
         scheduleDict[.Monday] = filterByDay(events, day: "Monday")
         scheduleDict[.Tuesday] = filterByDay(events, day: "Tuesday")
@@ -52,8 +69,18 @@ class Scheduler{
         scheduleDict[.Friday] = filterByDay(events, day: "Friday")
         scheduleDict[.Saturday] = filterByDay(events, day: "Saturday")
         scheduleDict[.Sunday] = filterByDay(events, day: "Sunday")
+        //save to calendar
+        do{
+            try eventStore.commit()
+        }catch {
+            print("task events could not be saved to taskwranglr calendar")
+        }
+        if(tasksNotFullyScheduled.count > 0){
+            NSNotificationCenter.defaultCenter().postNotificationName("TasksNotSchedueled", object: tasksNotFullyScheduled)
+        }
         return scheduleDict
     }
+    
     
     
 //----------------------------------------------------------------------------------------------------------------------------------
@@ -86,6 +113,7 @@ class Scheduler{
         
         //clear taskEvents array
         taskEvents = [EKEvent]()//reinit empty task events array
+        tasksNotFullyScheduled = [NSManagedObject]()
         
         
         let formatter = NSDateFormatter()
@@ -643,12 +671,12 @@ class Scheduler{
         taskEvent.title = name!
         taskEvent.startDate = timeSeg.startTime
         taskEvent.endDate = timeSeg.endTime
-        /* no efficient way to delete all events from a calendar so this is currently not saving to calendar
+         //save event but do not commit
          do{
-         try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: false)
+            try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: false)
          }catch {
-         print("task event could not save")
-         }*/
+            print("task event could not save")
+         }
         taskEvents.append(taskEvent)
         
         let taskEventId = taskEvent.eventIdentifier

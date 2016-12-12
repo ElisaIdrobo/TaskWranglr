@@ -7,7 +7,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename:  ScheduleViewController.swift
 // Description: View controller for the schedule view. Displays any task or calendar events on the user's schedule. It is in charge of running the scheduling algorithm.
-// Last modified on: 11/21/16
+// Last modified on: 12/12/16
 // Created by Elisa Idrobo on 11/13/16.
 //
 
@@ -71,11 +71,14 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
             tableView.dataSource = self
             //make ScheduleViewController an observer of nsnotificationcenter
             NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ScheduleViewController.runSchedulingAlgorithm(_:)), name:"UpdateSchedule", object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ScheduleViewController.taskUnscheduledMessage(_:)), name:"TasksNotSchedueled", object: nil)
         }
         if status == EKAuthorizationStatus.Denied || status == EKAuthorizationStatus.Restricted{
             calendarDeniedMessage()//disable the schedule component of the app if no calendar access
         }
     }
+    
+    
 //----------------------------------------------------------------------------------------------------------------------------------
 //
 //  Function: tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath)
@@ -169,7 +172,8 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
 // Post-condition: opened the calendar chooser UI if calendar access is authorized
 //----------------------------------------------------------------------------------------------------------------------------------
     func chooseCalendar() {
-        let calendarVC = EKCalendarChooser(selectionStyle: .Multiple, displayStyle: .AllCalendars, entityType: .Event, eventStore: eventStore)
+        let calendarVC = EKCalendarChooser(selectionStyle: .Multiple, displayStyle: .WritableCalendarsOnly, entityType: .Event, eventStore: eventStore)
+        //to-do:set selected calendars
         calendarVC.showsDoneButton = true
         calendarVC.modalPresentationStyle = .Popover
         calendarVC.delegate = self
@@ -191,6 +195,11 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
 // Post-condition: closes the calendar view.  To-Do: save calendars they select
 //----------------------------------------------------------------------------------------------------------------------------------
     func calendarChooserDidFinish(calendarChooser: EKCalendarChooser) {
+        let cals = calendarChooser.selectedCalendars
+        for c in cals{
+            //to-do ->save calendars user wants
+        }
+        
         self.navigationController?.popViewControllerAnimated(true)
     }
     
@@ -220,6 +229,17 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     func runSchedulingAlgorithm(notification: NSNotification){
         scheduleDict = scheduler.getScheduleAsDictionary()
         tableView.reloadData()
+    }
+    
+    func taskUnscheduledMessage(notification: NSNotification){
+        var tasks = [String]()
+        for task in (notification.object as! [NSManagedObject]){
+            tasks.append(task.valueForKey("name") as! String)
+        }
+        let alert = UIAlertController(title: "Task(s) not scheduled", message: "\(tasks)", preferredStyle: .Alert)
+        let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        alert.addAction(OKAction)
+        self.presentViewController(alert, animated: true, completion: nil)
     }
     
 }
