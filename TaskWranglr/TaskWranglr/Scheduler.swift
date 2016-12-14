@@ -6,7 +6,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename: Scheduler.swift
 // Description: Runs the scheduling algorithm. Scheduler should never be instantiated if calendar access is not authorized
-// Last modified on: 12/12/16
+// Last modified on: 12/14/16
 // Created by Elisa Idrobo on 11/19/16.
 
 import Foundation
@@ -99,7 +99,20 @@ class Scheduler{
         //----------------------------------------------------------------------------------------------------------------------------------
         
         //get calendar events ordered by what comes first
-        let cEvents = fetchCalendarEvents(eventStore.calendarsForEntityType(EKEntityType.Event)).sort(){
+        var calendars = [EKCalendar]()
+        //get EKCalendars corresponding to the calendarIDs saved in core data
+        let req = NSFetchRequest(entityName: "Calendar")
+        do{
+            let calendarIDs = try managedContext.executeFetchRequest(req)
+            for c in calendarIDs{
+                let cal = eventStore.calendarWithIdentifier(c.valueForKey("eventStoreID") as! String)
+                calendars.append(cal!)
+            }
+        }catch{
+            print("calendars could not be fetched from core data")
+        }
+
+        let cEvents = fetchCalendarEvents(calendars).sort(){
             (e1: EKEvent, e2: EKEvent) -> Bool in
             return e1.startDate.compare(e2.startDate) == NSComparisonResult.OrderedAscending
         }
@@ -235,9 +248,13 @@ class Scheduler{
 //   
 // Pre-condition: the eventStore object exists
 //
-// Post-condition: Returns an array of calendar events that happen over the next 7 days including the current day
+// Post-condition: Returns an array of calendar events that happen over the next 7 days including the current day. if calendars is 
+// empty an empty array is returned
 //----------------------------------------------------------------------------------------------------------------------------------
     private func fetchCalendarEvents(calendars: [EKCalendar]) -> [EKEvent] {
+        if calendars.isEmpty{
+            return [EKEvent]()
+        }
         let currentDate = NSDate().toLocalTime()
         let sevenDaysDate = currentDate.addDays(6)
         let eventsPredicate = eventStore.predicateForEventsWithStartDate(currentDate, endDate: sevenDaysDate, calendars: calendars)

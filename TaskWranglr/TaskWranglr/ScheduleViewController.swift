@@ -291,7 +291,10 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
             }
         }//save changes
         do{
-            try managedContext.save()
+            if !managedContext.insertedObjects.isEmpty || !managedContext.deletedObjects.isEmpty{
+                try managedContext.save()
+                NSNotificationCenter.defaultCenter().postNotificationName("UpdateSchedule", object: nil)
+            }
         }catch{
             print("could not update calendars in core data")
         }
