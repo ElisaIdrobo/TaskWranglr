@@ -44,8 +44,8 @@ class Scheduler{
     func getScheduleAsDictionary()->[Day:[EKEvent]]{
         var scheduleDict:[Day:[EKEvent]] = [:]
         //first empty current TaskWranglr calendar
-        let currentDate = NSDate().toLocalTime()
-        let sevenDaysDate = currentDate.addDays(6)
+        let currentDate = NSDate().addDays(-7)
+        let sevenDaysDate = currentDate.addDays(14)
         let eventsPredicate = eventStore.predicateForEventsWithStartDate(currentDate, endDate: sevenDaysDate, calendars: [taskCalendar])
         for task in eventStore.eventsMatchingPredicate(eventsPredicate){
             do{
@@ -671,6 +671,7 @@ class Scheduler{
         taskEvent.title = name!
         taskEvent.startDate = timeSeg.startTime
         taskEvent.endDate = timeSeg.endTime
+        taskEvent.addAlarm(EKAlarm(absoluteDate: timeSeg.startTime))
          //save event but do not commit
          do{
             try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: false)

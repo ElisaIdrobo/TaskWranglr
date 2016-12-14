@@ -7,7 +7,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename:  ScheduleViewController.swift
 // Description: View controller for the schedule view. Displays any task or calendar events on the user's schedule. It is in charge of running the scheduling algorithm.
-// Last modified on: 12/13/16
+// Last modified on: 12/14/16
 // Created by Elisa Idrobo on 11/13/16.
 //
 
@@ -206,15 +206,33 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
 //  
 // Pre-condition: called if user presses calendar button
 //
-// Post-condition: opened the calendar chooser UI if calendar access is authorized
+// Post-condition: opened the calendar chooser UI if calendar access is authorized. previously selected calendars are checked.
 //----------------------------------------------------------------------------------------------------------------------------------
     func chooseCalendar() {
         let calendarVC = EKCalendarChooser(selectionStyle: .Multiple, displayStyle: .WritableCalendarsOnly, entityType: .Event, eventStore: eventStore)
-        //to-do:set selected calendars
+        //fetch saved calendars and make them selected in the view
+        var set:Set = Set<EKCalendar>()
+        var calendars = [NSManagedObject]()
+        let req = NSFetchRequest(entityName: "Calendar")
+        do{
+            calendars = try managedContext.executeFetchRequest(req) as! [NSManagedObject]
+        }catch{
+            print("could not fetch calendar to be deleted")
+        }
+        if calendars.count > 0 {
+            for item in calendars{
+                print(item)
+                let id = item.valueForKey("eventStoreID") as! String
+                let cal = eventStore.calendarWithIdentifier(id)
+                set.insert(cal!)
+            }
+        }
+        calendarVC.selectedCalendars = set//when multiple selections are allowed selectedCalendars must be initialized to a valid set
         calendarVC.showsDoneButton = true
         calendarVC.modalPresentationStyle = .Popover
         calendarVC.delegate = self
         let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
+        //if calendar access is authorized display calendar view
         if status == EKAuthorizationStatus.Authorized{
             self.navigationController?.pushViewController(calendarVC, animated:true)
         }
@@ -222,21 +240,62 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
             calendarDeniedMessage()
         }
     }
-    
+
 //----------------------------------------------------------------------------------------------------------------------------------
 //
 //  Function: calendarChooserDidFinish(calendarChooser: EKCalendarChooser)
 //  
 // Pre-condition: called after user selected the done button of the calendar chooser view
 //
-// Post-condition: closes the calendar view.  To-Do: save calendars they select
+// Post-condition: updates which calendars taskwranglr will use in core data then closes the calendar view.
 //----------------------------------------------------------------------------------------------------------------------------------
     func calendarChooserDidFinish(calendarChooser: EKCalendarChooser) {
-        let cals = calendarChooser.selectedCalendars
-        for c in cals{
-            //to-do ->save calendars user wants
+        //update selected calendars in core data
+        let newCalendars:NSMutableSet = NSMutableSet(set: calendarChooser.selectedCalendars)
+        let currentCalendars: NSMutableSet = NSMutableSet()
+        //create set of all EKCalendar objects whose IDs are stored in core data
+        let req = NSFetchRequest(entityName: "Calendar")
+        do{
+            let currentCalendarsArr = try managedContext.executeFetchRequest(req) as! [NSManagedObject]
+            for calMO in currentCalendarsArr{
+                let calID = calMO.valueForKey("eventStoreID") as! String
+                let cal = eventStore.calendarWithIdentifier(calID)
+                currentCalendars.addObject(cal!)
+            }
+        }catch{
+            print("could not fetch saved calendars")
         }
-        
+        //remove unchanged calendars from add/remove sets
+        let sharedCalendars = NSMutableSet(set: currentCalendars)
+        sharedCalendars.filterUsingPredicate(NSPredicate(format: "SELF in %@", newCalendars))
+        currentCalendars.filterUsingPredicate(NSPredicate(format: "NOT SELF in %@", sharedCalendars))
+        newCalendars.filterUsingPredicate(NSPredicate(format: "NOT SELF in %@", sharedCalendars))
+        //add newly checked calendars to core data
+        for addCal in newCalendars{
+            //add to core data
+            let entity = NSEntityDescription.entityForName("Calendar", inManagedObjectContext: managedContext)
+            let c = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+            c.setValue(addCal.calendarIdentifier, forKey: "eventStoreID")
+            c.setValue(addCal.title, forKey: "title")
+            
+        }//remove newly unchecked calendars from core data
+        for delCal in currentCalendars{
+            let id = delCal.calendarIdentifier
+            let req = NSFetchRequest(entityName: "Calendar")
+            req.predicate = NSPredicate(format: "eventStoreID ==%@", id)
+            do{
+                let c = try managedContext.executeFetchRequest(req)
+                managedContext.deleteObject(c.first as! NSManagedObject)
+            }catch{
+                print("could not fetch calendar to be deleted")
+            }
+        }//save changes
+        do{
+            try managedContext.save()
+        }catch{
+            print("could not update calendars in core data")
+        }
+        //close calendar view
         self.navigationController?.popViewControllerAnimated(true)
     }
     
