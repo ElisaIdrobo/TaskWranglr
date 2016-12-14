@@ -33,8 +33,8 @@
                                     <action selector="dayChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="6T1-Li-gtg"/>
                                 </connections>
                             </segmentedControl>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="TnR-Ke-dvB">
-                                <rect key="frame" x="0.0" y="91" width="600" height="509"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="TnR-Ke-dvB">
+                                <rect key="frame" x="0.0" y="94" width="600" height="506"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="Ifi-qX-Lcu">
@@ -50,11 +50,11 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="yTa-cU-HNC" firstAttribute="leading" secondItem="TnR-Ke-dvB" secondAttribute="leading" id="G5K-Ne-2x8"/>
-                            <constraint firstItem="TnR-Ke-dvB" firstAttribute="top" secondItem="yTa-cU-HNC" secondAttribute="bottom" constant="2" id="HqV-RD-7bM"/>
-                            <constraint firstItem="yTa-cU-HNC" firstAttribute="trailing" secondItem="TnR-Ke-dvB" secondAttribute="trailing" id="Jo7-ip-s7z"/>
+                            <constraint firstAttribute="bottom" secondItem="TnR-Ke-dvB" secondAttribute="bottom" id="34o-Tb-Mm1"/>
+                            <constraint firstItem="TnR-Ke-dvB" firstAttribute="trailing" secondItem="yTa-cU-HNC" secondAttribute="trailing" id="Kiu-ec-fCK"/>
                             <constraint firstItem="yTa-cU-HNC" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="U7B-bz-zF4"/>
-                            <constraint firstItem="TnR-Ke-dvB" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="aj9-QL-1oD"/>
+                            <constraint firstItem="TnR-Ke-dvB" firstAttribute="top" secondItem="yTa-cU-HNC" secondAttribute="bottom" constant="2" id="Xqi-Zd-DNb"/>
+                            <constraint firstItem="TnR-Ke-dvB" firstAttribute="leading" secondItem="yTa-cU-HNC" secondAttribute="leading" id="gA9-Q1-rGf"/>
                             <constraint firstItem="yTa-cU-HNC" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="owW-rg-AUk"/>
                             <constraint firstAttribute="trailing" secondItem="yTa-cU-HNC" secondAttribute="trailing" id="p8d-CL-mlL"/>
                         </constraints>

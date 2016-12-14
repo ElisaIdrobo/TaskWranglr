@@ -6,7 +6,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename: AppDelegate.swift
 // Description: handles states of UIApplication object
-// Last modified on: 11/21/16
+// Last modified on: 12/13/16
 // Created by Elisa Idrobo on 10/28/16
 
 
@@ -130,7 +130,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     print("calendar access granted")
                     self.makeCalendar()
                     print("app delegate created calendar")
-                    NSNotificationCenter.defaultCenter().postNotificationName("UpdateSchedule", object: nil)
                 }else{
                     print("calendar access not granted")
                 }

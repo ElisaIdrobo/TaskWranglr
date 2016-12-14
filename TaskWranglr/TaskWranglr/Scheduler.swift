@@ -133,7 +133,7 @@ class Scheduler{
         //----------------------------------------------------------------------------------------------------------------------------------
         //Main Algorithm
         
-        print("INIT: \(tempSchedule)")
+        //print("INIT: \(tempSchedule)")
         
         //for each task schedule it
         for t in tasks{

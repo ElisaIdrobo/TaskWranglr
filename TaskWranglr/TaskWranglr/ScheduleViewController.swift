@@ -7,7 +7,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename:  ScheduleViewController.swift
 // Description: View controller for the schedule view. Displays any task or calendar events on the user's schedule. It is in charge of running the scheduling algorithm.
-// Last modified on: 12/12/16
+// Last modified on: 12/13/16
 // Created by Elisa Idrobo on 11/13/16.
 //
 
@@ -28,6 +28,8 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     }()
     weak var taskCalendar: EKCalendar!
     var day = Day.Monday
+    
+    lazy var tasks: [String] = [String]()
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "Task")
@@ -58,24 +60,59 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
 //----------------------------------------------------------------------------------------------------------------------------------
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("did stuff")
         //create button programmically so that the EKCalendarChooser can be used
         let leftButton =  UIBarButtonItem(title: "calendars", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(ScheduleViewController.chooseCalendar))
         navigationItem.leftBarButtonItem = leftButton
         let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
         if status == EKAuthorizationStatus.Authorized{
             //if there is calendar access run the scheduler and connect the schedule it returns to the tableview
-            scheduler = Scheduler(eStore: eventStore, mContext: managedContext, frc: fetchedResultsController)
-            scheduleDict = scheduler.getScheduleAsDictionary()
-            tableView.delegate = self
-            tableView.dataSource = self
-            //make ScheduleViewController an observer of nsnotificationcenter
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ScheduleViewController.runSchedulingAlgorithm(_:)), name:"UpdateSchedule", object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ScheduleViewController.taskUnscheduledMessage(_:)), name:"TasksNotSchedueled", object: nil)
+            initScheduler()
+            
         }
         if status == EKAuthorizationStatus.Denied || status == EKAuthorizationStatus.Restricted{
             calendarDeniedMessage()//disable the schedule component of the app if no calendar access
         }
+    }
+    
+    //----------------------------------------------------------------------------------------------------------------------------------
+    //
+    //  Function: viewDidAppear()
+    //
+    // Pre-condition: not called by user
+    //
+    // Post-condition: schedule view appeared and if a scheduler needs to be created do so, if there were tasks that could not
+    // be scheduled notify the user
+    //----------------------------------------------------------------------------------------------------------------------------------
+    override func viewDidAppear(animated: Bool) {
+        if tasks.count > 0{
+            let alert = UIAlertController(title: "Task(s) could not scheduled", message: "\(tasks)", preferredStyle: .Alert)
+            let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+            alert.addAction(OKAction)
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
+        //this should only be called the first time the user enables calendars
+        if(scheduler == nil && EKEventStore.authorizationStatusForEntityType(EKEntityType.Event) == EKAuthorizationStatus.Authorized){
+            initScheduler()
+        }
+        
+    }
+    //----------------------------------------------------------------------------------------------------------------------------------
+    //
+    //  Function: initScheduler()
+    //
+    // Pre-condition: calendar authorization status is authorized and no scheduler currently exists
+    //
+    // Post-condition: the scheduler is set up and the tableview delegates are set to self
+    //----------------------------------------------------------------------------------------------------------------------------------
+
+    func initScheduler(){
+        scheduler = Scheduler(eStore: eventStore, mContext: managedContext, frc: fetchedResultsController)
+        scheduleDict = scheduler.getScheduleAsDictionary()
+        //make ScheduleViewController an observer of nsnotificationcenter for when to update a schedule and when a task could not be scheduled
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ScheduleViewController.runSchedulingAlgorithm(_:)), name:"UpdateSchedule", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ScheduleViewController.taskUnscheduledMessage(_:)), name:"TasksNotSchedueled", object: nil)
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
     
@@ -227,19 +264,16 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
 // Post-condition:  the scheduling algorithm was ran and the table reloaded
 //----------------------------------------------------------------------------------------------------------------------------------    
     func runSchedulingAlgorithm(notification: NSNotification){
+        print("running scheduling algorithm")
         scheduleDict = scheduler.getScheduleAsDictionary()
         tableView.reloadData()
     }
     
     func taskUnscheduledMessage(notification: NSNotification){
-        var tasks = [String]()
+        tasks = [String]()//clear it
         for task in (notification.object as! [NSManagedObject]){
             tasks.append(task.valueForKey("name") as! String)
         }
-        let alert = UIAlertController(title: "Task(s) not scheduled", message: "\(tasks)", preferredStyle: .Alert)
-        let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-        alert.addAction(OKAction)
-        self.presentViewController(alert, animated: true, completion: nil)
     }
     
 }
