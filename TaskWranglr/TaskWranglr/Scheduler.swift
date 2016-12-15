@@ -604,10 +604,24 @@ class Scheduler{
 // Pre-condition: the given duration corresponds to the given day ie it is possible to schedule the task for the given duration on the day
 //
 // Post-condition: finds available time segments in tempSchedule[dayOfWeek], updates dayOfWeek's availableHours and available 
-// time segments, and creates an EKEvent for the task and saves it to taskEvents[]
+// time segments, and creates an EKEvent for the task and saves it to taskEvents[] which lists subtasks to be completed in its notes
 //----------------------------------------------------------------------------------------------------------------------------------
     private func timeSegsToAssign(dayOfWeek: Day, duration: NSTimeInterval, task:NSManagedObject){
         if duration == 0{ return }//a day with no scheduled time is not an error but no task should be created
+        //fetch subtasks
+        let req = NSFetchRequest(entityName: "SubTask")
+        req.predicate = NSPredicate(format: "subtask == %@", task)
+        var subtasks = [Subtask]()
+        do{
+            let subtasksObjects = try managedContext.executeFetchRequest(req)
+            for subtask in subtasksObjects{
+                let s = Subtask(name:subtask.valueForKey("name") as! String, completionTime:subtask.valueForKey("completionTime") as! NSTimeInterval)
+                subtasks.append(s)
+            }
+        }catch{
+            print("could not fetch subtasks")
+        }
+
         var eventCreated = false
         var dur = duration
         while !eventCreated{
@@ -615,7 +629,19 @@ class Scheduler{
             var newTimeSeg: TimeSeg
             if(timeSeg.duration() < dur){
                 //timeseg is too short
-                createTaskEvent(timeSeg, task: task)
+                //create list of subtasks that can be completed
+                var note = ""
+                var dur = timeSeg.duration()
+                while dur > 0 && !subtasks.isEmpty{
+                    let tempdur = dur
+                    dur -= (subtasks.first?.completionTime)!
+                    note += (subtasks.first?.name)! + "\n"
+                    subtasks[0].completionTime -= tempdur
+                    if subtasks.first?.completionTime <= 0{
+                        subtasks.removeFirst()
+                    }
+                }
+                createTaskEvent(timeSeg, task: task, note: note)
                 newTimeSeg = TimeSeg(startTime: timeSeg.endTime, endTime: timeSeg.endTime)
             }else{
                 //timseg is >= duration
@@ -623,7 +649,19 @@ class Scheduler{
                 newTimeSeg = TimeSeg(startTime: newStartTime, endTime: timeSeg.endTime)
                 
                 let taskSeg = TimeSeg(startTime: timeSeg.startTime, endTime: newTimeSeg.startTime)
-                createTaskEvent(taskSeg, task: task)
+                //create list of subtasks that can be completed
+                var note = ""
+                var dur = taskSeg.duration()
+                while dur > 0 && !subtasks.isEmpty{
+                    let tempdur = dur
+                    dur -= (subtasks.first?.completionTime)!
+                    note += subtasks.first!.name + "\n"
+                    subtasks[0].completionTime -= tempdur
+                    if subtasks.first?.completionTime <= 0{
+                        subtasks.removeFirst()
+                    }
+                }
+                createTaskEvent(taskSeg, task: task, note: note)
                 eventCreated =  true
             }
             let index = tempSchedule[dayOfWeek]!.availableTime.indexOf({
@@ -633,6 +671,7 @@ class Scheduler{
             tempSchedule[dayOfWeek]!.updateTimeSeg(newTimeSeg, segIndex: index!)
             dur -= timeSeg.duration()
         }
+        
     }
     
 //----------------------------------------------------------------------------------------------------------------------------------
@@ -673,12 +712,13 @@ class Scheduler{
 // Parameters:
 //      input TimeSeg; timeSegment of the task event to be created
 //      input NSManagedObject; the corresponding task to the event that will be created
+//      input String; a list of subtasks to be completed
 //  
 // Pre-condition: timeSeg is correct and has no overlap with other events
 //
 // Post-condition: made an EKEvent for a task event and linked it to its corresponding task in the core data model, does not change the tempScheduled, saved the event in taskEvents
 //----------------------------------------------------------------------------------------------------------------------------------
-    private func createTaskEvent(timeSeg:TimeSeg, task:NSManagedObject){
+    private func createTaskEvent(timeSeg:TimeSeg, task:NSManagedObject, note: String){
         let name = task.valueForKey("name") as? String
         if(timeSeg.startTime == timeSeg.endTime){
             print("start time of segment == end time. event not created")
@@ -688,6 +728,7 @@ class Scheduler{
         taskEvent.title = name!
         taskEvent.startDate = timeSeg.startTime
         taskEvent.endDate = timeSeg.endTime
+        taskEvent.notes = note
         taskEvent.addAlarm(EKAlarm(absoluteDate: timeSeg.startTime))
          //save event but do not commit
          do{
@@ -706,6 +747,7 @@ class Scheduler{
         do{
             try managedContext.save()
             print("Success saving taskevent")
+            print(taskEvent.notes)
         }catch let error as NSError{
             print("could not save \(error), \(error.userInfo)")
         }
@@ -760,4 +802,8 @@ struct CalendarDay{
             availableTime[segIndex] = newSeg
         }
     }
+}
+struct Subtask{
+    var name:String
+    var completionTime:NSTimeInterval
 }

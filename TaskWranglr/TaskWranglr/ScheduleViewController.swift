@@ -15,7 +15,7 @@ import UIKit
 import EventKitUI
 import CoreData
 
-class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate {
+class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFetchedResultsControllerDelegate, UITableViewDataSource, EKEventViewDelegate, UITableViewDelegate {
     
     //eventStore needed to access any calendar data
     lazy var eventStore:EKEventStore = {
@@ -168,6 +168,21 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return scheduleDict[day]!.count
     }
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let vc = EKEventViewController()
+        vc.event = scheduleDict[day]![indexPath.row]
+        vc.allowsCalendarPreview = false
+        vc.allowsEditing = false
+        vc.delegate = self
+        self.navigationController?.pushViewController(vc, animated:true)
+        
+    }
+    func eventViewController(controller: EKEventViewController, didCompleteWithAction action: EKEventViewAction) {
+        if action == EKEventViewAction.Deleted{
+            //to-do handle deletion
+        }
+        self.navigationController?.popViewControllerAnimated(true)
+    }
 //----------------------------------------------------------------------------------------------------------------------------------
 //
 //  Function: dayChange(sender: UISegmentedControl)
@@ -197,6 +212,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
         }
         tableView.reloadData()
     }
+    
     
     // MARK: -Calendar Events
     
