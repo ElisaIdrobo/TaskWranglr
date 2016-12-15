@@ -744,8 +744,7 @@ class Scheduler{
         taskEventEntity.setValue(task, forKey: "task")
         do{
             try managedContext.save()
-            print("Success saving taskevent")
-            print(taskEvent.notes)
+            print("Success saving taskevent for \(name)")
         }catch let error as NSError{
             print("could not save \(error), \(error.userInfo)")
         }

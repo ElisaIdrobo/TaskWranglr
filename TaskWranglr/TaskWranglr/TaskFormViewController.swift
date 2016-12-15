@@ -183,8 +183,22 @@ class TaskFormViewController: UITableViewController, UINavigationControllerDeleg
 // a new task created the NSManagedObject. DOES NOT COMMIT
 //----------------------------------------------------------------------------------------------------------------------------------
     func saveTask(){
-        nameField = nameFieldCell.nameField.text
+        //if task completion time is smaller than the total amount inputed for subtasks update completion time to the real total time
+        var subtaskTotalDuration = NSTimeInterval()
+        for row in 0..<tableView.numberOfRowsInSection(3){
+            let index = NSIndexPath(forItem: row, inSection: 3)
+            let cell=tableView.cellForRowAtIndexPath(index) as? SubtaskCell
+            let subtaskName = cell?.nameField.text
+            if subtaskName != ""{
+                let subtaskTimeToComplete = cell?.timeField.countDownDuration
+                subtaskTotalDuration += subtaskTimeToComplete!
+            }
+        }
         completionTimeField = completionTimeFieldCell.timeField.countDownDuration
+        if completionTimeField < subtaskTotalDuration{
+            completionTimeField = subtaskTotalDuration
+        }
+        nameField = nameFieldCell.nameField.text
         deadlineField = deadlineFieldCell.dateField.date
         if task == nil{
             let entity = NSEntityDescription.entityForName("Task", inManagedObjectContext: managedContext)
