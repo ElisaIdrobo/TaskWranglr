@@ -217,8 +217,18 @@ class Scheduler{
 
             // 3. now that durations are correct,assign them to times in their corresponding days(this method creates EKEvent for each task segment)
             if willCreateEvents{
+                //get subtasks and initialize array consisting of subtask name and durations
+                let subtasksSet = t.mutableOrderedSetValueForKey("subtask")
+                let subtaskObjects = subtasksSet.array
+                var subtasks = [Subtask]()
+                for subtask in subtaskObjects{
+                    let s = Subtask(name:subtask.valueForKey("name") as! String, completionTime:subtask.valueForKey("completionTime") as! NSTimeInterval)
+                    subtasks.append(s)
+                }
+                
+                //timesegs
                 for i in 0..<dayOrder.count{
-                    timeSegsToAssign(dayOrder[i], duration: durations[i], task: t)
+                    subtasks = timeSegsToAssign(dayOrder[i], duration: durations[i], task: t, subtaskArr: subtasks)
                 }
             }
             // 4. handle errors
@@ -606,22 +616,10 @@ class Scheduler{
 // Post-condition: finds available time segments in tempSchedule[dayOfWeek], updates dayOfWeek's availableHours and available 
 // time segments, and creates an EKEvent for the task and saves it to taskEvents[] which lists subtasks to be completed in its notes
 //----------------------------------------------------------------------------------------------------------------------------------
-    private func timeSegsToAssign(dayOfWeek: Day, duration: NSTimeInterval, task:NSManagedObject){
-        if duration == 0{ return }//a day with no scheduled time is not an error but no task should be created
+    private func timeSegsToAssign(dayOfWeek: Day, duration: NSTimeInterval, task:NSManagedObject, subtaskArr: [Subtask])->[Subtask]{
+        if duration == 0{ return subtaskArr }//a day with no scheduled time is not an error but no task should be created
         //fetch subtasks
-        let req = NSFetchRequest(entityName: "SubTask")
-        req.predicate = NSPredicate(format: "subtask == %@", task)
-        var subtasks = [Subtask]()
-        do{
-            let subtasksObjects = try managedContext.executeFetchRequest(req)
-            for subtask in subtasksObjects{
-                let s = Subtask(name:subtask.valueForKey("name") as! String, completionTime:subtask.valueForKey("completionTime") as! NSTimeInterval)
-                subtasks.append(s)
-            }
-        }catch{
-            print("could not fetch subtasks")
-        }
-
+        var subtasks = subtaskArr
         var eventCreated = false
         var dur = duration
         while !eventCreated{
@@ -671,7 +669,7 @@ class Scheduler{
             tempSchedule[dayOfWeek]!.updateTimeSeg(newTimeSeg, segIndex: index!)
             dur -= timeSeg.duration()
         }
-        
+        return subtasks
     }
     
 //----------------------------------------------------------------------------------------------------------------------------------
