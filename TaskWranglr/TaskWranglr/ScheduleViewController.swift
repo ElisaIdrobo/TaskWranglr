@@ -30,6 +30,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     var day = Day.Monday
     
     lazy var tasks: [String] = [String]()
+    // Added/Updated as part of take-home final
     lazy var deleteSelectedRow = false
     lazy var selectedRowIndex = NSIndexPath(index: 0)
     lazy var selectedRowEventId = ""
@@ -78,6 +79,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     }
     
     //----------------------------------------------------------------------------------------------------------------------------------
+    // Added/Updated as part of take-home final
     //
     //  Function: viewDidAppear()
     //
@@ -177,6 +179,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
         return scheduleDict[day]!.count
     }
     //----------------------------------------------------------------------------------------------------------------------------------
+    // Added/Updated as part of take-home final
     //
     //  Function: tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
     //
@@ -196,6 +199,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
        
     }
     //----------------------------------------------------------------------------------------------------------------------------------
+    // Added/Updated as part of take-home final
     //
     //  Function: eventViewController(controller: EKEventViewController, didCompleteWithAction action: EKEventViewAction)
     //
@@ -214,6 +218,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
         self.navigationController?.popViewControllerAnimated(true)
     }
     //----------------------------------------------------------------------------------------------------------------------------------
+    // Added/Updated as part of take-home final
     //
     //  Function: dismissEvent(event: EKEvent)
     //
@@ -299,6 +304,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     // MARK: -Calendar Events
     
 //----------------------------------------------------------------------------------------------------------------------------------
+// Added/Updated as part of take-home final
 //
 //  Function: chooseCalendar()
 //  
@@ -340,6 +346,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     }
 
 //----------------------------------------------------------------------------------------------------------------------------------
+// Added/Updated as part of take-home final
 //
 //  Function: calendarChooserDidFinish(calendarChooser: EKCalendarChooser)
 //  
@@ -430,6 +437,7 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
         tableView.reloadData()
     }
     //----------------------------------------------------------------------------------------------------------------------------------
+    // Added/Updated as part of take-home final
     //
     //  Function: taskUnscheduledMessage(notification: NSNotification)
     //

@@ -32,6 +32,7 @@ class Scheduler{
     }
 
 //----------------------------------------------------------------------------------------------------------------------------------
+// Added/Updated as part of take-home final
 //
 //  Function: getScheduleAsDictionary()
 //   
@@ -89,6 +90,7 @@ class Scheduler{
     
     
 //----------------------------------------------------------------------------------------------------------------------------------
+// Added/Updated as part of take-home final
 //
 //  Function: schedule()
 //   
@@ -608,6 +610,7 @@ class Scheduler{
         return [ a , b ]
     }
 //----------------------------------------------------------------------------------------------------------------------------------
+// Added/Updated as part of take-home final
 //
 //  Function: timeSegsToAssign(dayOfWeek: Day, duration: NSTimeInterval, task:NSManagedObject)
 //
@@ -709,6 +712,7 @@ class Scheduler{
     }
     
 //----------------------------------------------------------------------------------------------------------------------------------
+// Added/Updated as part of take-home final
 //
 //  Function: createTaskEvent(timeSeg:TimeSeg, task:NSManagedObject)
 //
@@ -805,6 +809,8 @@ struct CalendarDay{
         }
     }
 }
+// Added/Updated as part of take-home final
+//save name and completionTime of a subtask that can be updated without effecting the subtask stored in core data
 struct Subtask{
     var name:String
     var completionTime:NSTimeInterval
