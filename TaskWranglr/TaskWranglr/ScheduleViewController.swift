@@ -206,7 +206,9 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     func eventViewController(controller: EKEventViewController, didCompleteWithAction action: EKEventViewAction) {
         if action == EKEventViewAction.Deleted{
             let event = controller.event
-            dismissEvent(event)
+            if event.calendar == eventStore.calendarWithIdentifier(NSUserDefaults.standardUserDefaults().objectForKey("TaskWranglrCalendar") as! String){
+                dismissEvent(event)
+            }
             deleteSelectedRow = true
         }
         self.navigationController?.popViewControllerAnimated(true)
