@@ -1,4 +1,4 @@
-Known Bugs, Issues, and Limitations(last updated 11/27/16)
+Known Bugs, Issues, and Limitations(last updated 12/16/16)
 	
 
 Updating schedule:
@@ -7,10 +7,4 @@ Updating schedule:
 Other:
 	Sometimes crashes at first ever startup with an error accessing the source of the device’s calendar. Restarting app fixes it.
 
-
-
-Not Yet Implemented:
-	using subtasks in the scheduling algorithm
-	viewing/dismissing task events 
-	using a subset of calendars the user specifies to use in the schedule
 	
