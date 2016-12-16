@@ -6,7 +6,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename: Scheduler.swift
 // Description: Runs the scheduling algorithm. Scheduler should never be instantiated if calendar access is not authorized
-// Last modified on: 12/14/16
+// Last modified on: 12/15/16
 // Created by Elisa Idrobo on 11/19/16.
 
 import Foundation
@@ -60,6 +60,17 @@ class Scheduler{
         }catch {
             print("task events could not be removed from taskwranglr calendar")
         }
+        let req = NSFetchRequest(entityName: "TaskEvent")
+        do{
+            let taskEventObjects = try managedContext.executeFetchRequest(req) as! [NSManagedObject]
+            for te in taskEventObjects{
+                managedContext.deleteObject(te)
+            }
+            try managedContext.save()
+        }catch{
+            print("could not clear task events from core data")
+        }
+
         //create schedule
         let events = schedule()
         scheduleDict[.Monday] = filterByDay(events, day: "Monday")
@@ -69,12 +80,6 @@ class Scheduler{
         scheduleDict[.Friday] = filterByDay(events, day: "Friday")
         scheduleDict[.Saturday] = filterByDay(events, day: "Saturday")
         scheduleDict[.Sunday] = filterByDay(events, day: "Sunday")
-        //save to calendar
-        do{
-            try eventStore.commit()
-        }catch {
-            print("task events could not be saved to taskwranglr calendar")
-        }
         if(tasksNotFullyScheduled.count > 0){
             NSNotificationCenter.defaultCenter().postNotificationName("TasksNotSchedueled", object: tasksNotFullyScheduled)
         }
@@ -730,17 +735,17 @@ class Scheduler{
         taskEvent.addAlarm(EKAlarm(absoluteDate: timeSeg.startTime))
          //save event but do not commit
          do{
-            try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: false)
+            try eventStore.saveEvent(taskEvent, span: .ThisEvent,commit: true)
          }catch {
             print("task event could not save")
          }
         taskEvents.append(taskEvent)
         
         let taskEventId = taskEvent.eventIdentifier
+        print("task event id: \(taskEventId)")
         let entity = NSEntityDescription.entityForName("TaskEvent", inManagedObjectContext: managedContext)
         let taskEventEntity = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
         taskEventEntity.setValue(taskEventId, forKey: "id")
-        //taskEventEntity.setValue(NSSet(object: task), forKey: "task")
         taskEventEntity.setValue(task, forKey: "task")
         do{
             try managedContext.save()

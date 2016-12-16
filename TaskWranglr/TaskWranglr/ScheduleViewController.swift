@@ -7,7 +7,7 @@
 // Description: An app to plan when to work on various homework assignments based on the user's schedule.
 // Filename:  ScheduleViewController.swift
 // Description: View controller for the schedule view. Displays any task or calendar events on the user's schedule. It is in charge of running the scheduling algorithm.
-// Last modified on: 12/14/16
+// Last modified on: 12/15/16
 // Created by Elisa Idrobo on 11/13/16.
 //
 
@@ -30,6 +30,9 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     var day = Day.Monday
     
     lazy var tasks: [String] = [String]()
+    lazy var deleteSelectedRow = false
+    lazy var selectedRowIndex = NSIndexPath(index: 0)
+    lazy var selectedRowEventId = ""
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "Task")
@@ -81,9 +84,14 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     // Pre-condition: not called by user
     //
     // Post-condition: schedule view appeared and if a scheduler needs to be created do so, if there were tasks that could not
-    // be scheduled notify the user
+    // be scheduled notify the user. if an event was dismissed delete that row in the table
     //----------------------------------------------------------------------------------------------------------------------------------
     override func viewDidAppear(animated: Bool) {
+        if deleteSelectedRow{
+            scheduleDict[day]?.removeAtIndex(selectedRowIndex.row)
+            tableView.deleteRowsAtIndexPaths([selectedRowIndex], withRowAnimation: UITableViewRowAnimation.None)
+            deleteSelectedRow = false
+        }
         if tasks.count > 0{
             let alert = UIAlertController(title: "Task(s) could not scheduled", message: "\(tasks)", preferredStyle: .Alert)
             let OKAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
@@ -168,20 +176,92 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return scheduleDict[day]!.count
     }
+    //----------------------------------------------------------------------------------------------------------------------------------
+    //
+    //  Function: tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath)
+    //
+    // Pre-condition: not called by developer. a row in the tableview was selected
+    //
+    // Post-condition: displays a view of the task event to the user. saves the event id and index of the row in case user deletes event
+    //----------------------------------------------------------------------------------------------------------------------------------
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let vc = EKEventViewController()
         vc.event = scheduleDict[day]![indexPath.row]
         vc.allowsCalendarPreview = false
         vc.allowsEditing = false
+        selectedRowEventId = vc.event.eventIdentifier
+        selectedRowIndex = tableView.indexPathForSelectedRow!
         vc.delegate = self
         self.navigationController?.pushViewController(vc, animated:true)
-        
+       
     }
+    //----------------------------------------------------------------------------------------------------------------------------------
+    //
+    //  Function: eventViewController(controller: EKEventViewController, didCompleteWithAction action: EKEventViewAction)
+    //
+    // Pre-condition: not called by developer. an action was done to the ekevent view controller
+    //
+    // Post-condition: if the event is deleted the event is dismissed and task data is updated. view is returned to the schedule view
+    //----------------------------------------------------------------------------------------------------------------------------------
     func eventViewController(controller: EKEventViewController, didCompleteWithAction action: EKEventViewAction) {
         if action == EKEventViewAction.Deleted{
-            //to-do handle deletion
+            let event = controller.event
+            dismissEvent(event)
+            deleteSelectedRow = true
         }
         self.navigationController?.popViewControllerAnimated(true)
+    }
+    //----------------------------------------------------------------------------------------------------------------------------------
+    //
+    //  Function: dismissEvent(event: EKEvent)
+    //
+    // parameter: EKEvent; the event being dismissed
+    //
+    // Pre-condition: user wants to dismiss the event
+    //
+    // Post-condition: completion times of subtasks and tasks are updated and deleted if they are complete
+    //----------------------------------------------------------------------------------------------------------------------------------
+    func dismissEvent(event: EKEvent){
+        var duration = event.endDate.timeIntervalSinceDate(event.startDate)
+        //get task
+        let req = NSFetchRequest(entityName: "TaskEvent")
+        req.predicate = NSPredicate(format: "id == %@", selectedRowEventId as String)
+        var task: NSManagedObject!
+        do{
+            let taskEvent = try managedContext.executeFetchRequest(req) as! [NSManagedObject]
+            task = taskEvent.first!.valueForKey("task") as! NSManagedObject
+            managedContext.deleteObject(taskEvent.first!)
+        }catch{
+            print("could not fetch task event from core data")
+        }
+        //get subtasks if any
+        let subtasksSet = task.mutableOrderedSetValueForKey("subtask")
+        var subtasks = subtasksSet.array
+        //determine new completionTime of task and delete if its completed
+        var newCompletionTime = task.valueForKey("completionTime") as! NSTimeInterval
+        newCompletionTime -= duration
+        if newCompletionTime <= 0{
+            managedContext.deleteObject(task)
+        }else{
+            task.setValue(newCompletionTime, forKey: "completionTime")
+        }
+        //determine new completion times of subtasks. delete them if they are completed
+        while duration > 0 && !subtasks.isEmpty{
+            var subtaskCT = subtasks.first?.valueForKey("completionTime") as! NSTimeInterval
+            subtaskCT -= duration
+            duration -= subtasks.first?.valueForKey("completionTime") as! NSTimeInterval
+            if subtaskCT <= 0 {
+                managedContext.deleteObject(subtasks.first as! NSManagedObject)
+                subtasks.removeFirst()
+            }else{
+                subtasks.first?.setValue(subtaskCT, forKey: "completionTime")
+            }
+        }
+        do{
+            try managedContext.save()
+        }catch{
+            print("could not delete task event for \(task.valueForKey("name"))")
+        }
     }
 //----------------------------------------------------------------------------------------------------------------------------------
 //
@@ -343,10 +423,18 @@ class ScheduleViewController: UIViewController, EKCalendarChooserDelegate, NSFet
 //----------------------------------------------------------------------------------------------------------------------------------    
     func runSchedulingAlgorithm(notification: NSNotification){
         print("running scheduling algorithm")
+        tasks = [String]()
         scheduleDict = scheduler.getScheduleAsDictionary()
         tableView.reloadData()
     }
-    
+    //----------------------------------------------------------------------------------------------------------------------------------
+    //
+    //  Function: taskUnscheduledMessage(notification: NSNotification)
+    //
+    // Pre-condition: a task was unable to be scheduled. The names of the tasks are in the notifications object
+    //
+    // Post-condition:  the names of the tasks are stored in the global variable tasks
+    //----------------------------------------------------------------------------------------------------------------------------------
     func taskUnscheduledMessage(notification: NSNotification){
         tasks = [String]()//clear it
         for task in (notification.object as! [NSManagedObject]){
