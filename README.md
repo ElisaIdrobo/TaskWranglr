@@ -1,4 +1,7 @@
 # TaskWranglr
-An app to plan when to work on various homework assignments based on the user's specified calendar.
+TaskWranglr is an iOS app written in Swift 2.2 (XCode 7.3) for better time management. Most to-do lists or calendars require the user to specify when they will complete something. TaskWranglr finds the best time to schedule the task with the user's existing calendar schedule.
 
-Somebody would want to use this app if they want to better manage their time when completing various tasks or homework assignments. Most to-do lists or calendars require the user to specify when they will complete something. TaskWranglr finds the best time so that the user only needs to input the tasks they want to get done. 
+# Resources
+- [Instructions For Installing and Using TaskWranglr](https://github.com/ElisaIdrobo/TaskWranglr/blob/master/Docs/Instructions%20For%20Installing%20and%20Using%20TaskWranglr.txt)
+- [Documentation](https://github.com/ElisaIdrobo/TaskWranglr/wiki)
+- [License](https://github.com/ElisaIdrobo/TaskWranglr/blob/master/LICENSE)
